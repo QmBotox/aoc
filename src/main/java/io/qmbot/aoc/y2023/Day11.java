@@ -79,10 +79,12 @@ public class Day11 implements Puzzle {
     List<Point> parse(String input) {
         List<Point> galaxies = new ArrayList<>();
         String[] strings = input.split(REGEX_NEW_LINE);
+        int number = 1;
         for (int y = 0; y < strings.length; y++) {
             for (int x = 0; x < strings[0].length(); x++) {
                 if (strings[y].charAt(x) == '#') {
-                    galaxies.add(new Point(y, x));
+                    galaxies.add(new Point(y, x, number));
+                    number++;
                 }
             }
         }
@@ -98,10 +100,20 @@ public class Day11 implements Puzzle {
     static class Point {
         long y;
         long x;
+        int number;
 
-        public Point(long y, long x) {
+        public Point(long y, long x, int number) {
             this.y = y;
             this.x = x;
+            this.number = number;
+        }
+
+        @Override
+        public String toString() {
+            return number+ "{" +
+                    "y=" + y +
+                    ", x=" + x +
+                    '}';
         }
     }
 }

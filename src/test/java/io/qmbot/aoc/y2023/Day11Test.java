@@ -33,11 +33,11 @@ public class Day11Test {
 
     @Test
     void pathTest() {
-        Day11.Point p1 = new Day11.Point(0, 4);
-        Day11.Point p7 = new Day11.Point(10, 9);
+        Day11.Point p1 = new Day11.Point(0, 4, 0);
+        Day11.Point p7 = new Day11.Point(10, 9, 0);
 
-        Day11.Point p3 = new Day11.Point(2, 0);
-        Day11.Point p6 = new Day11.Point(7, 12);
+        Day11.Point p3 = new Day11.Point(2, 0, 0);
+        Day11.Point p6 = new Day11.Point(7, 12, 0);
 
         System.out.println(shortPath(p1, p7));
         System.out.println(shortPath(p3, p6));
