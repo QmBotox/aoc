@@ -33,7 +33,7 @@ public class Day03 implements Puzzle {
         for (int y = 0; y < sizeY; y++) {
             for (int x = 0; x < sizeX; x++) {
                 if (schematic[y][x] == '*') {
-                    if (isAdjacent(schematic, y, x)){
+                    if (isAdjacent(schematic, y, x)) {
                         result += gearRatio(schematic, y, x);
                     }
                 }
@@ -93,17 +93,29 @@ public class Day03 implements Puzzle {
         int maxY = schematic.length;
         int maxX = schematic[0].length;
         int result = 0;
-        for (int y = startY - 1; y <= startY + 1; y++) {
-            for (int x = startX - 1; x <= startX + 1; x++) {
-                if (y >= 0 && y < maxY && x >= 0 && x < maxX && !(y == startY && x == startX)) {
-                    c = schematic[y][x];
-                    if (Character.isDigit(c)) {
-                        result++;
-                        break;
-                    }
-                }
-            }
+
+        if (Character.isDigit(schematic[startY - 1][startX - 1])
+                && Character.isDigit(schematic[startY - 1][startX + 1])
+                && schematic[startY - 1][startX] == '.') {
+            result += 2;
+        } else if (Character.isDigit(schematic[startY - 1][startX - 1])
+                || Character.isDigit(schematic[startY - 1][startX + 1])
+                || Character.isDigit(schematic[startY - 1][startX])) {
+            result++;
         }
+
+        if (Character.isDigit(schematic[startY + 1][startX - 1])
+                && Character.isDigit(schematic[startY + 1][startX + 1])
+                && schematic[startY + 1][startX] == '.') {
+            result += 2;
+        } else if (Character.isDigit(schematic[startY + 1][startX - 1])
+                || Character.isDigit(schematic[startY + 1][startX + 1])
+                || Character.isDigit(schematic[startY + 1][startX])) {
+            result++;
+        }
+
+        if (Character.isDigit(schematic[startY][startX - 1])) result ++;
+        if (Character.isDigit(schematic[startY][startX + 1])) result++;
 
         return result == 2;
     }
