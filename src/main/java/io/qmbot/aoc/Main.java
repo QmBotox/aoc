@@ -29,7 +29,8 @@ public class Main {
         String formatted = String.format("io.qmbot.aoc.y%d.Day%02d", year, day);
         Puzzle p = (Puzzle) Class.forName(formatted).getDeclaredConstructor().newInstance();
         String input = getInput(dir, year, day, cookie);
-        System.out.printf("Day %d answer%n%s%n%s%n%n", day, p.part1(input), p.part2(input));
+        System.out.printf("Day %d answer%n%s%n", day, p.part1(input));
+        System.out.printf("Day %d answer%n%s%n", day, p.part2(input));
     }
 
     private static String getInput(String dir, int year, int day, String cookie) throws IOException, InterruptedException {
