@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class Day16Test {
-    Puzzle p = new Day14();
+    Puzzle p = new Day16();
 
     String input = """
             .|...\\....
@@ -21,7 +21,7 @@ public class Day16Test {
 
     @Test
     public void part1(){
-        Assertions.assertEquals(136, p.part1(input));
+        Assertions.assertEquals(46, p.part1(input));
     }
 
     @Test

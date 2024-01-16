@@ -55,31 +55,31 @@ public class Day05 implements Puzzle {
         return result.stream().min(Long::compareTo).orElseThrow();
     }
 
-    private long processMap(List<List<Long>> map, long seed) {
+    private long processMap(List<Mapping> map, long seed) {
         Set<Long> numbers = new HashSet<>();
         numbers.add(seed);
         long n = seed;
-        for (List<Long> list : map) {
+        for (Mapping list : map) {
             long value = value(list, seed);
             if (numbers.add(value)) {
-                n = value;
+                return value;
             }
         }
         return n;
     }
 
 
-    private long value(List<Long> list, long seed) {
-        Long source = list.get(1);
-        Long length = list.get(2);
+    private long value(Mapping list, long seed) {
+        long source = list.source;
+        long length = list.length;
         if (source <= seed && seed <= source + length -1) {
-            return list.get(0) + (seed - source);
+            return list.destination + (seed - source);
         }
         return seed;
     }
 
     private Card parse(String input) {
-        List<List<Long>>[] maps = new List[7];
+        List<Mapping>[] maps = new List[7];
         String[] strings = input.split(REGEX_NEW_LINE);
         String[] seedsStrings = strings[0].split(" ");
         int mapIndex = 0;
@@ -94,9 +94,9 @@ public class Day05 implements Puzzle {
                 maps[0], maps[1], maps[2], maps[3], maps[4], maps[5], maps[6]);
     }
 
-    List<List<Long>> list(String[] strings, int i) {
+    List<Mapping> list(String[] strings, int i) {
         i++;
-        List<List<Long>> list = new ArrayList<>();
+        List<Mapping> list = new ArrayList<>();
         String[] values;
         while (i < strings.length && !strings[i].equals("")) {
             values = strings[i].split(" ");
@@ -108,18 +108,17 @@ public class Day05 implements Puzzle {
 
     static class Card {
         List<Long> seeds;
-        List<List<Long>> seedToSoil;
-        List<List<Long>> soilToFertilizer;
-        List<List<Long>> fertilizerToWater;
-        List<List<Long>> waterToLight;
-        List<List<Long>> lightToTemperature;
-        List<List<Long>> temperatureToHumidity;
-        List<List<Long>> humidityToLocation;
+        List<Mapping> seedToSoil;
+        List<Mapping> soilToFertilizer;
+        List<Mapping> fertilizerToWater;
+        List<Mapping> waterToLight;
+        List<Mapping> lightToTemperature;
+        List<Mapping> temperatureToHumidity;
+        List<Mapping> humidityToLocation;
 
-        public Card(List<Long> seeds, List<List<Long>> seedToSoil, List<List<Long>> soilToFertilizer,
-                    List<List<Long>> fertilizerToWater, List<List<Long>> waterToLight,
-                    List<List<Long>> lightToTemperature, List<List<Long>> temperatureToHumidity,
-                    List<List<Long>> humidityToLocation) {
+        public Card(List<Long> seeds, List<Mapping> seedToSoil, List<Mapping> soilToFertilizer,
+                    List<Mapping> fertilizerToWater, List<Mapping> waterToLight, List<Mapping> lightToTemperature,
+                    List<Mapping> temperatureToHumidity, List<Mapping> humidityToLocation) {
             this.seeds = seeds;
             this.seedToSoil = seedToSoil;
             this.soilToFertilizer = soilToFertilizer;
@@ -131,13 +130,9 @@ public class Day05 implements Puzzle {
         }
     }
 
-    public List<Long> somethingToSomething(String destination, String source, String length) {
-        List<Long> smtToSmt = new ArrayList<>();
-        smtToSmt.add(Long.parseLong(destination));
-        smtToSmt.add(Long.parseLong(source));
-        smtToSmt.add(Long.parseLong(length));
-
-        return smtToSmt;
+    public Mapping somethingToSomething(String destination, String source, String length) {
+        return new Mapping(Long.parseLong(destination), Long.parseLong(source), Long.parseLong(length));
     }
 
+    record Mapping(long destination, long source, long length){}
 }
