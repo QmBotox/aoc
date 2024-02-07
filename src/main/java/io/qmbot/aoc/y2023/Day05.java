@@ -9,15 +9,15 @@ public class Day05 implements Puzzle {
     public Long part1(String input) {
         Card card = parse(input);
         List<Long> result = new ArrayList<>();
-        for (long seed : card.seeds) {
-            seed = processMap(card.seedToSoil, seed);
-            seed = processMap(card.soilToFertilizer, seed);
-            seed = processMap(card.fertilizerToWater, seed);
-            seed = processMap(card.waterToLight, seed);
-            seed = processMap(card.lightToTemperature, seed);
-            seed = processMap(card.temperatureToHumidity, seed);
-            seed = processMap(card.humidityToLocation, seed);
-            result.add(seed);
+        for (long category : card.seeds) {
+            category = processMap(card.seedToSoil, category);
+            category = processMap(card.soilToFertilizer, category);
+            category = processMap(card.fertilizerToWater, category);
+            category = processMap(card.waterToLight, category);
+            category = processMap(card.lightToTemperature, category);
+            category = processMap(card.temperatureToHumidity, category);
+            category = processMap(card.humidityToLocation, category);
+            result.add(category);
         }
         return result.stream().min(Long::compareTo).orElseThrow();
     }
@@ -25,57 +25,78 @@ public class Day05 implements Puzzle {
     @Override
     public Object part2(String input) {
         Card card = parse(input);
-        List<Long> result = new ArrayList<>();
-        long start = card.seeds.get(0);
-        long length = card.seeds.get(1);
-        for (long i = start; i < start + length; i++) {
-            long seed  = i;
-            seed = processMap(card.seedToSoil, seed);
-            seed = processMap(card.soilToFertilizer, seed);
-            seed = processMap(card.fertilizerToWater, seed);
-            seed = processMap(card.waterToLight, seed);
-            seed = processMap(card.lightToTemperature, seed);
-            seed = processMap(card.temperatureToHumidity, seed);
-            seed = processMap(card.humidityToLocation, seed);
-            result.add(seed);
+        List<SeedMapping> seedMappings = seedMappings(card.seeds);
+        long location = 0L;
+        long category;
+        while (true) {
+            category = location;
+            category = processMapReverse(card.humidityToLocation, category);
+            category = processMapReverse(card.temperatureToHumidity, category);
+            category = processMapReverse(card.lightToTemperature, category);
+            category = processMapReverse(card.waterToLight, category);
+            category = processMapReverse(card.fertilizerToWater, category);
+            category = processMapReverse(card.soilToFertilizer, category);
+            long seed = processMapReverse(card.seedToSoil, category);
+            if (haveSeed(seedMappings, seed)) {
+                return location;
+            } else location++;
         }
-        start = card.seeds.get(2);
-        length = card.seeds.get(3);
-        for (long i = start; i < start + length; i++) {
-            long seed  = i;
-            seed = processMap(card.seedToSoil, seed);
-            seed = processMap(card.soilToFertilizer, seed);
-            seed = processMap(card.fertilizerToWater, seed);
-            seed = processMap(card.waterToLight, seed);
-            seed = processMap(card.lightToTemperature, seed);
-            seed = processMap(card.temperatureToHumidity, seed);
-            seed = processMap(card.humidityToLocation, seed);
-            result.add(seed);
-        }
-        return result.stream().min(Long::compareTo).orElseThrow();
     }
 
-    private long processMap(List<Mapping> map, long seed) {
+    List<SeedMapping> seedMappings(List<Long> seeds) {
+        List<SeedMapping> seedMappings = new ArrayList<>();
+        for (int i = 0; i < seeds.size(); i = i + 2) {
+            seedMappings.add(new SeedMapping(seeds.get(i), seeds.get(i + 1)));
+        }
+        return seedMappings;
+    }
+
+    private long processMap(List<Mapping> map, long category) {
         Set<Long> numbers = new HashSet<>();
-        numbers.add(seed);
-        long n = seed;
+        numbers.add(category);
         for (Mapping list : map) {
-            long value = value(list, seed);
+            long value = value(list, category);
             if (numbers.add(value)) {
                 return value;
             }
         }
-        return n;
+        return category;
+    }
+    private long processMapReverse(List<Mapping> map, long category) {
+        Set<Long> numbers = new HashSet<>();
+        numbers.add(category);
+        for (Mapping list : map) {
+            long value = valueReverse(list, category);
+            if (numbers.add(value)) {
+                return value;
+            }
+        }
+        return category;
+    }
+    boolean haveSeed(List <SeedMapping> seedMappings, long seed) {
+        for (SeedMapping seedMapping : seedMappings) {
+            long source = seedMapping.source;
+            long length = seedMapping.length;
+            if (source <= seed && seed <= source + length - 1) return true;
+        }
+        return false;
     }
 
-
-    private long value(Mapping list, long seed) {
+    private long value(Mapping list, long category) {
         long source = list.source;
         long length = list.length;
-        if (source <= seed && seed <= source + length -1) {
-            return list.destination + (seed - source);
+        if (source <= category && category <= source + length -1) {
+            return list.destination + (category - source);
         }
-        return seed;
+        return category;
+    }
+    private long valueReverse(Mapping list, long category) {
+        long destination = list.destination;
+        long length = list.length;
+        if (destination <= category && category <= destination + length -1) {
+            return list.source + (category - destination);
+        }
+        return category;
     }
 
     private Card parse(String input) {
@@ -133,6 +154,6 @@ public class Day05 implements Puzzle {
     public Mapping somethingToSomething(String destination, String source, String length) {
         return new Mapping(Long.parseLong(destination), Long.parseLong(source), Long.parseLong(length));
     }
-
+    record SeedMapping(long source, long length) {}
     record Mapping(long destination, long source, long length){}
 }

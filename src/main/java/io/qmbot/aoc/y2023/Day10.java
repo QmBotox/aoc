@@ -2,23 +2,41 @@ package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Day10 implements Puzzle {
     @Override
     public Object part1(String input) {
         char[][] sketch = parse(input);
-        Point start = start(sketch);
-        return howLong(sketch, start) / 2;
+        return howLong(sketch, start(sketch), new boolean[sketch.length][sketch[0].length], new ArrayList<>()) / 2;
     }
 
     @Override
     public Object part2(String input) {
-        return null;
+        char[][] sketch = parse(input);
+        List<Point> angles = new ArrayList<>();
+        return countInside(howLong(sketch, start(sketch), new boolean[sketch.length][sketch[0].length], angles), angles);
     }
 
+    int countInside(int g, List<Point> angles) {
+        return (int) (shoelaceArea(angles) - (g / 2) + 1);
+    }
 
-    int howLong(char[][] sketch, Point start) {
+    private static double shoelaceArea(List<Point> angles) {
+        int n = angles.size();
+        double a = 0.0;
+        for (int i = 0; i < n - 1; i++) {
+            a += angles.get(i).x * angles.get(i + 1).y - angles.get(i + 1).x * angles.get(i).y;
+        }
+        return Math.abs(a + angles.get(n - 1).x * angles.get(0).y - angles.get(0).x * angles.get(n - 1).y) / 2.0;
+    }
+
+    int howLong(char[][] sketch, Point start, boolean[][] pipe, List<Point> angles) {
         int y = start.y;
         int x = start.x;
+        angles.add(new Point(y, x, Direction.LEFT));
+        pipe[y][x] = true;
         Point[] directions = {
                 new Point(y + Direction.UP.deltaY, x + Direction.UP.deltaX, Direction.UP),
                 new Point(y + Direction.RIGHT.deltaY, x + Direction.RIGHT.deltaX, Direction.RIGHT),
@@ -29,7 +47,7 @@ public class Day10 implements Puzzle {
             int newY = point.y;
             int newX = point.x;
             if (isValidPosition(newY, newX, sketch) && isValidMove(point.from, sketch[newY][newX])) {
-                return destination(point, sketch, start);
+                return destination(point, sketch, pipe, start, angles);
             }
         }
         return 0;
@@ -46,7 +64,7 @@ public class Day10 implements Puzzle {
                 (from == Direction.LEFT && (next == '-' || next == 'L' || next == 'F'));
     }
 
-    int destination(Point point, char[][] sketch, Point start) {
+    int destination(Point point, char[][] sketch, boolean[][] pipe, Point start, List<Point> angles) {
         int steps = 1;
         Direction fromDirection;
         while (!(point.y == start.y && point.x == start.x)) {
@@ -54,13 +72,26 @@ public class Day10 implements Puzzle {
             int x = point.x;
             steps++;
             fromDirection = point.from;
+            pipe[y][x] = true;
             switch (sketch[y][x]) {
                 case '|' -> move(point, fromDirection == Direction.UP ? Direction.UP : Direction.DOWN);
                 case '-' -> move(point, fromDirection == Direction.LEFT ? Direction.LEFT : Direction.RIGHT);
-                case 'L' -> move(point, fromDirection == Direction.DOWN ? Direction.RIGHT : Direction.UP);
-                case 'J' -> move(point, fromDirection == Direction.DOWN ? Direction.LEFT : Direction.UP);
-                case '7' -> move(point, fromDirection == Direction.RIGHT ? Direction.DOWN : Direction.LEFT);
-                case 'F' -> move(point, fromDirection == Direction.LEFT ? Direction.DOWN : Direction.RIGHT);
+                case 'L' -> {
+                    angles.add(new Point(y, x, Direction.LEFT));
+                    move(point, fromDirection == Direction.DOWN ? Direction.RIGHT : Direction.UP);
+                }
+                case 'J' -> {
+                    angles.add(new Point(y, x, Direction.LEFT));
+                    move(point, fromDirection == Direction.DOWN ? Direction.LEFT : Direction.UP);
+                }
+                case '7' -> {
+                    angles.add(new Point(y, x, Direction.LEFT));
+                    move(point, fromDirection == Direction.RIGHT ? Direction.DOWN : Direction.LEFT);
+                }
+                case 'F' -> {
+                    angles.add(new Point(y, x, Direction.LEFT));
+                    move(point, fromDirection == Direction.LEFT ? Direction.DOWN : Direction.RIGHT);
+                }
                 default -> {
                 }
             }
@@ -115,11 +146,6 @@ public class Day10 implements Puzzle {
             this.y = y;
             this.x = x;
             this.from = from;
-        }
-
-        @Override
-        public String toString() {
-            return y + ", " + x;
         }
     }
 }
