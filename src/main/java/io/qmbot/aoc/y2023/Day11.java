@@ -8,49 +8,33 @@ import java.util.List;
 public class Day11 implements Puzzle {
     @Override
     public Object part1(String input) {
-        List<Point> galaxies = parse(input);
-        String[] strings = input.split(REGEX_NEW_LINE);
-        long spaceExpands = 1;
-
-        column(strings, galaxies, spaceExpands);
-        rows(strings, galaxies, spaceExpands);
-
-        long result = 0;
-        for (int i = 0; i < galaxies.size(); i++) {
-            for (int j = i + 1; j < galaxies.size(); j++) {
-                result += shortPath(galaxies.get(i), galaxies.get(j));
-            }
-        }
-        return result;
+        return allLength(parse(input), 2L);
     }
 
     @Override
     public Object part2(String input) {
-        List<Point> galaxies = parse(input);
-        String[] strings = input.split(REGEX_NEW_LINE);
-        long spaceExpands = 10;
+        return allLength(parse(input), 1000000L);
+    }
 
-        column(strings, galaxies, spaceExpands);
-        rows(strings, galaxies, spaceExpands);
-
-        long result = 0L;
-        for (int i = 0; i < galaxies.size(); i++) {
-            for (int j = i + 1; j < galaxies.size(); j++) {
+    long allLength (Galaxy galaxy, long spaceExpands) {
+        spaceExpands -= 1;
+        List<Point> galaxies = galaxy.galaxies;
+        column(galaxy.maxX, galaxies, spaceExpands);
+        rows(galaxy.maxY, galaxies, spaceExpands);
+        long size = galaxies.size();
+        long result = 0;
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
                 result += shortPath(galaxies.get(i), galaxies.get(j));
             }
         }
         return result;
     }
 
-    void column(String[] strings, List<Point> galaxies, long spaceExpands) {
-        for (int x = strings[0].length(); x > -1; x--) {
-            boolean haveGalaxy = false;
-            for (Point galaxy : galaxies) {
-                if (galaxy.x == x) {
-                    haveGalaxy = true;
-                    break;
-                }
-            }
+    void column(long length, List<Point> galaxies, long spaceExpands) {
+        for (long x = length; x > -1; x--) {
+            long targetX = x;
+            boolean haveGalaxy = galaxies.stream().anyMatch(galaxy -> galaxy.x == targetX);
             if (!haveGalaxy) {
                 for (Point galaxy : galaxies) {
                     if (galaxy.x > x) galaxy.x += spaceExpands;
@@ -59,15 +43,10 @@ public class Day11 implements Puzzle {
         }
     }
 
-    void rows(String[] strings, List<Point> galaxies, long spaceExpands) {
-        for (int y = strings.length - 1; y > -1; y--) {
-            boolean haveGalaxy = false;
-            for (Point galaxy : galaxies) {
-                if (galaxy.y == y) {
-                    haveGalaxy = true;
-                    break;
-                }
-            }
+    void rows(long length, List<Point> galaxies, long spaceExpands) {
+        for (long y = length - 1; y > -1; y--) {
+            long targetY = y;
+            boolean haveGalaxy = galaxies.stream().anyMatch(galaxy -> galaxy.y == targetY);
             if (!haveGalaxy) {
                 for (Point galaxy : galaxies) {
                     if (galaxy.y > y) galaxy.y += spaceExpands;
@@ -76,44 +55,50 @@ public class Day11 implements Puzzle {
         }
     }
 
-    List<Point> parse(String input) {
+    Galaxy parse(String input) {
         List<Point> galaxies = new ArrayList<>();
         String[] strings = input.split(REGEX_NEW_LINE);
-        int number = 1;
+        long maxY = 0;
+        long maxX = 0;
         for (int y = 0; y < strings.length; y++) {
             for (int x = 0; x < strings[0].length(); x++) {
                 if (strings[y].charAt(x) == '#') {
-                    galaxies.add(new Point(y, x, number));
-                    number++;
+                    galaxies.add(new Point(y, x));
+                    maxY = y > maxY ? y : maxY;
+                    maxX = x > maxX ? x : maxX;
                 }
             }
         }
-        return galaxies;
+        return new Galaxy(galaxies, maxY, maxX);
     }
 
     static long shortPath(Point first, Point second) {
-        long y = Math.max(first.y, second.y) - Math.min(first.y, second.y) + 1;
-        long x = Math.max(first.x, second.x) - Math.min(first.x, second.x) + 1;
-        return Math.max(y, x) - 2 + Math.min(y, x);
+        return Math.abs(first.y - second.y) + Math.abs(first.x - second.x);
+    }
+    static class Galaxy {
+        List<Point> galaxies;
+        long maxY;
+        long maxX;
+
+        public Galaxy(List<Point> galaxies, long maxY, long maxX) {
+            this.galaxies = galaxies;
+            this.maxY = maxY;
+            this.maxX = maxX;
+        }
     }
 
     static class Point {
         long y;
         long x;
-        int number;
 
-        public Point(long y, long x, int number) {
+        public Point(long y, long x) {
             this.y = y;
             this.x = x;
-            this.number = number;
         }
 
         @Override
         public String toString() {
-            return number+ "{" +
-                    "y=" + y +
-                    ", x=" + x +
-                    '}';
+            return   y + ", " + x ;
         }
     }
 }
