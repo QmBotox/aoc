@@ -4,6 +4,8 @@ import io.qmbot.aoc.Puzzle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class Day11 implements Puzzle {
     @Override
@@ -16,11 +18,10 @@ public class Day11 implements Puzzle {
         return allLength(parse(input), 1000000L);
     }
 
-    long allLength (Galaxy galaxy, long spaceExpands) {
+    long allLength (List<Point> galaxies, long spaceExpands) {
         spaceExpands -= 1;
-        List<Point> galaxies = galaxy.galaxies;
-        column(galaxy.maxX, galaxies, spaceExpands);
-        rows(galaxy.maxY, galaxies, spaceExpands);
+        addSpace(galaxies, spaceExpands, g -> g.x, (g, s) -> g.x += s);
+        addSpace(galaxies, spaceExpands, g -> g.y, (g, s) -> g.y += s);
         long size = galaxies.size();
         long result = 0;
         for (int i = 0; i < size; i++) {
@@ -31,60 +32,32 @@ public class Day11 implements Puzzle {
         return result;
     }
 
-    void column(long length, List<Point> galaxies, long spaceExpands) {
-        for (long x = length; x > -1; x--) {
-            long targetX = x;
-            boolean haveGalaxy = galaxies.stream().anyMatch(galaxy -> galaxy.x == targetX);
-            if (!haveGalaxy) {
-                for (Point galaxy : galaxies) {
-                    if (galaxy.x > x) galaxy.x += spaceExpands;
+    void addSpace(List<Point> galaxies, long spaceExpands, Function<Point, Long> f, BiConsumer<Point, Long> bc) {
+        for (long n = galaxies.stream().mapToLong(f::apply).max().orElseThrow(); n > -1; n--) {
+            long target = n;
+            if (galaxies.stream().noneMatch(galaxy -> f.apply(galaxy) == target)) {
+                for (Point g : galaxies) {
+                    if (f.apply(g) > n) bc.accept(g, spaceExpands);
                 }
             }
         }
     }
 
-    void rows(long length, List<Point> galaxies, long spaceExpands) {
-        for (long y = length - 1; y > -1; y--) {
-            long targetY = y;
-            boolean haveGalaxy = galaxies.stream().anyMatch(galaxy -> galaxy.y == targetY);
-            if (!haveGalaxy) {
-                for (Point galaxy : galaxies) {
-                    if (galaxy.y > y) galaxy.y += spaceExpands;
-                }
-            }
-        }
-    }
-
-    Galaxy parse(String input) {
+    List<Point> parse(String input) {
         List<Point> galaxies = new ArrayList<>();
         String[] strings = input.split(REGEX_NEW_LINE);
-        long maxY = 0;
-        long maxX = 0;
         for (int y = 0; y < strings.length; y++) {
             for (int x = 0; x < strings[0].length(); x++) {
                 if (strings[y].charAt(x) == '#') {
                     galaxies.add(new Point(y, x));
-                    maxY = y > maxY ? y : maxY;
-                    maxX = x > maxX ? x : maxX;
                 }
             }
         }
-        return new Galaxy(galaxies, maxY, maxX);
+        return galaxies;
     }
 
     static long shortPath(Point first, Point second) {
         return Math.abs(first.y - second.y) + Math.abs(first.x - second.x);
-    }
-    static class Galaxy {
-        List<Point> galaxies;
-        long maxY;
-        long maxX;
-
-        public Galaxy(List<Point> galaxies, long maxY, long maxX) {
-            this.galaxies = galaxies;
-            this.maxY = maxY;
-            this.maxX = maxX;
-        }
     }
 
     static class Point {
