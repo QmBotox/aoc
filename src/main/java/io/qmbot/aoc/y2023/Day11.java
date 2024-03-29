@@ -68,10 +68,5 @@ public class Day11 implements Puzzle {
             this.y = y;
             this.x = x;
         }
-
-        @Override
-        public String toString() {
-            return   y + ", " + x ;
-        }
     }
 }

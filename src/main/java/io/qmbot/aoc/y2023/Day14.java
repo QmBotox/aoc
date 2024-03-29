@@ -115,7 +115,7 @@ public class Day14 implements Puzzle {
         dish[now.y][now.x] = 'O';
     }
 
-    class Point {
+    static class Point {
         int y;
         int x;
 

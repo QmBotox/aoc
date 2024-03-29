@@ -1,6 +1,7 @@
 package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
+import io.qmbot.aoc.y2023.Day14.Point;
 
 public class Day16 implements Puzzle {
     @Override
@@ -158,7 +159,7 @@ public class Day16 implements Puzzle {
         }
     }
 
-    class Place {
+    static class Place {
         char c;
         boolean isBeenUp = false;
         boolean isBeenDown = false;
@@ -177,22 +178,12 @@ public class Day16 implements Puzzle {
         LEFT(-1, 0),
         RIGHT(1, 0);
 
-        private final int deltaX;
-        private final int deltaY;
+        final int deltaX;
+        final int deltaY;
 
         Direction(int deltaX, int deltaY) {
             this.deltaX = deltaX;
             this.deltaY = deltaY;
-        }
-    }
-
-    class Point {
-        int y;
-        int x;
-
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
         }
     }
 }

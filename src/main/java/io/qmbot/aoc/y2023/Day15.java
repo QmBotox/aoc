@@ -94,7 +94,7 @@ public class Day15 implements Puzzle {
         return result;
     }
 
-    class Box{
+    static class Box{
         Map<String, Lens> lensMap = new HashMap<>();
 
         @Override
@@ -102,7 +102,7 @@ public class Day15 implements Puzzle {
             return  lensMap.toString();
         }
     }
-    class Lens{
+    static class Lens{
         int slot;
         int focalLength;
 

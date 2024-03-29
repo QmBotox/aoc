@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.qmbot.aoc.y2023.Day12.countOfSolutions;
 import static io.qmbot.aoc.y2023.Day12.spring;
 
 public class Day12Test {
@@ -35,7 +36,7 @@ public class Day12Test {
 
     @Test
     void part2(){
-        Assertions.assertEquals(525152, p.part2(input2));
+        Assertions.assertEquals(525152L, p.part2(input2));
     }
 
     @Test
@@ -47,5 +48,13 @@ public class Day12Test {
         for (Day12.Spring s : springs) {
             if (s.trueForString(s.springs)) {System.out.println("true");} else System.out.println("false");
         }
+    }
+
+    @Test
+    void count1Test() {
+        String str = "?###???????? 3,2,1";
+        Day12.Spring spr = spring(str);
+
+        System.out.println(countOfSolutions(spr));
     }
 }

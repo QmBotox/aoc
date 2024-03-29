@@ -1,5 +1,6 @@
 package io.qmbot.aoc.y2022;
 
+import io.qmbot.aoc.y2022.Day17.Point;
 import io.qmbot.aoc.Puzzle;
 import java.util.Arrays;
 
@@ -509,16 +510,6 @@ public class Day22 implements Puzzle {
             this.coordinateOnBoard = new Point(squareY, squareX);
             this.squareY = squareY;
             this.squareX = squareX;
-        }
-    }
-
-    private static class Point {
-        int pointY;
-        int pointX;
-
-        public Point(int pointY, int pointX) {
-            this.pointY = pointY;
-            this.pointX = pointX;
         }
     }
 }

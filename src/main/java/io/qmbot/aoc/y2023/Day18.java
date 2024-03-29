@@ -1,7 +1,7 @@
 package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
-
+import io.qmbot.aoc.y2023.Day14.Point;
 import java.util.List;
 
 public class Day18 implements Puzzle {
@@ -113,20 +113,5 @@ public class Day18 implements Puzzle {
         int cols = matrix[0].length;
 
         return x >= 0 && x < rows && y >= 0 && y < cols && !visited[x][y] && !matrix[x][y];
-    }
-
-    class Point {
-        int y;
-        int x;
-
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
-
-        @Override
-        public String toString() {
-            return y + ", " + x;
-        }
     }
 }

@@ -76,10 +76,5 @@ public class Day01 implements Puzzle {
         public int getNumber() {
             return number;
         }
-
-        private int isNumber(String s) {
-            if (s.equals(string)) return number;
-            return 0;
-        }
     }
 }

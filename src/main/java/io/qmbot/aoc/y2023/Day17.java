@@ -1,7 +1,8 @@
 package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
-
+import io.qmbot.aoc.y2023.Day14.Point;
+import io.qmbot.aoc.y2023.Day16.Direction;
 import java.util.*;
 
 public class Day17 implements Puzzle {
@@ -152,36 +153,6 @@ public class Day17 implements Puzzle {
         @Override
         public int hashCode() {
             return Objects.hash(point);
-        }
-    }
-
-    public enum Direction {
-        UP(0, -1),
-        DOWN(0, 1),
-        LEFT(-1, 0),
-        RIGHT(1, 0);
-
-        private final int deltaX;
-        private final int deltaY;
-
-        Direction(int deltaX, int deltaY) {
-            this.deltaX = deltaX;
-            this.deltaY = deltaY;
-        }
-    }
-
-    static class Point {
-        int y;
-        int x;
-
-        public Point(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
-
-        @Override
-        public String toString() {
-            return y + ", " + x ;
         }
     }
 }

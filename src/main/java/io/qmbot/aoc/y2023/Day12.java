@@ -33,7 +33,7 @@ public class Day12 implements Puzzle {
     long arrangements(Spring spring) {
         List<String> strings = new ArrayList<>();
         strings.add("");
-        for (int i = 0; i<spring.springs.length(); i++) {
+        for (int i = 0; i < spring.springs.length(); i++) {
             if (spring.springs.charAt(i) == '?') {
                 List<String> operational = strings.stream().map(s -> s + '.').toList();
                 List<String> damaged = strings.stream().map(s -> s + '#').toList();
@@ -66,9 +66,33 @@ public class Day12 implements Puzzle {
     List<Spring> parse(String input) {
         return Arrays.stream(input.split(REGEX_NEW_LINE)).map(Day12::spring).collect(Collectors.toList());
     }
+
     static Spring spring(String string) {
         String[] parts = string.split(" ");
         return new Spring(parts[0], Arrays.stream(parts[1].split(",")).map(Integer::parseInt).toList());
+    }
+
+    static long countOfSolutions(Spring spring) {
+        String springs = spring.springs;
+        if (springs.isEmpty() && spring.groups.isEmpty()) return 1;
+        if (springs.isEmpty() || spring.groups.isEmpty()) return 0;
+        if (springs.charAt(0) == '.')
+            return countOfSolutions( new Spring(springs.substring(1), spring.groups));
+        if (springs.charAt(0) == '?')
+            return countOfSolutions(new Spring('.' + springs.substring(1), spring.groups))
+                    + countOfSolutions(new Spring('#' + springs.substring(1), spring.groups));
+        if (springs.charAt(0) == '#') {
+            int index = spring.groups.get(0);
+            if (springs.length() < index) return 0;
+            for (int i = 0; i < index; i++) {
+                if (springs.charAt(i) == '.') return 0;
+            }
+            if (springs.length() == index || springs.charAt(index) == '#') return 0;
+            List newGroups = new ArrayList(spring.groups);
+            newGroups.remove(0);
+            return countOfSolutions(new Spring(springs.substring(index), newGroups));
+        }
+        throw new IllegalStateException();
     }
 
     static class Spring {
@@ -89,11 +113,9 @@ public class Day12 implements Puzzle {
         }
 
         boolean trueForString(String springs) {
-            String[] groupString = Arrays.stream(springs.split("\\."))
-                    .filter(str -> !str.isEmpty())
-                    .toArray(String[]::new);
+            String[] groupString = Arrays.stream(springs.split("\\.")).filter(str -> !str.isEmpty()).toArray(String[]::new);
             if (groups.size() != groupString.length) return false;
-            for (int i = 0; i< groups.size(); i++) {
+            for (int i = 0; i < groups.size(); i++) {
                 if (groups.get(i) != groupString[i].length()) return false;
             }
             return true;
@@ -102,7 +124,7 @@ public class Day12 implements Puzzle {
         boolean trueForString2(String springs) {
             String[] groupString = Arrays.stream(springs.split("\\.")).filter(str -> !str.isEmpty()).toArray(String[]::new);
             if (groups.size() < groupString.length) return false;
-            for (int i = 0; i< groupString.length - 1; i++) {
+            for (int i = 0; i < groupString.length - 1; i++) {
                 if (groups.get(i) != groupString[i].length()) return false;
             }
             return true;
@@ -111,7 +133,7 @@ public class Day12 implements Puzzle {
         void unfold() {
             StringJoiner joiner = new StringJoiner("?");
             List<Integer> g = new ArrayList<>();
-            for (int i = 0; i<5; i++) {
+            for (int i = 0; i < 5; i++) {
                 joiner.add(springs);
                 g.addAll(groups);
             }
