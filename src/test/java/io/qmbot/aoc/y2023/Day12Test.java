@@ -9,6 +9,7 @@ import java.util.List;
 
 import static io.qmbot.aoc.y2023.Day12.countOfSolutions;
 import static io.qmbot.aoc.y2023.Day12.spring;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Day12Test {
     Puzzle p = new Day12();
@@ -31,23 +32,12 @@ public class Day12Test {
 
     @Test
     public void part1(){
-        Assertions.assertEquals(21, p.part1(input2));
+        assertEquals(21L, p.part1(input2));
     }
 
     @Test
     void part2(){
-        Assertions.assertEquals(525152L, p.part2(input2));
-    }
-
-    @Test
-    void trueForSpringTest() {
-        List<Day12.Spring> springs = new ArrayList<>();
-        for (String string : input.split("\n")){
-            springs.add(spring(string));
-        }
-        for (Day12.Spring s : springs) {
-            if (s.trueForString(s.springs)) {System.out.println("true");} else System.out.println("false");
-        }
+        assertEquals(525152L, p.part2(input2));
     }
 
     @Test
@@ -56,5 +46,15 @@ public class Day12Test {
         Day12.Spring spr = spring(str);
 
         System.out.println(countOfSolutions(spr));
+    }
+
+    @Test
+    void countOfSolutionsTest() {
+        assertEquals(1L, countOfSolutions(spring("# 1")));
+        assertEquals(1L, countOfSolutions(spring("? 1")));
+        assertEquals(1L, countOfSolutions(spring("#. 1")));
+        assertEquals(2L, countOfSolutions(spring("?? 1")));
+        assertEquals(2L, countOfSolutions(spring(".?? 1")));
+        assertEquals(2L, countOfSolutions(spring("??. 1")));
     }
 }

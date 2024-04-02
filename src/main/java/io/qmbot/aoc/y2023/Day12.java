@@ -2,65 +2,18 @@ package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Day12 implements Puzzle {
     @Override
     public Object part1(String input) {
-        List<Spring> strings = parse(input);
-        int result = 0;
-        for (Spring spring : strings) {
-            result += arrangements(spring);
-        }
-        return result;
+        return parse(input).stream().mapToLong(Day12::countOfSolutions).sum();
     }
 
     @Override
     public Object part2(String input) {
-        List<Spring> strings = parse(input);
-        long result = 0;
-        for (Spring spring : strings) {
-            spring.unfold();
-            result += arrangements(spring);
-        }
-        return result;
-    }
-
-    long arrangements(Spring spring) {
-        List<String> strings = new ArrayList<>();
-        strings.add("");
-        for (int i = 0; i < spring.springs.length(); i++) {
-            if (spring.springs.charAt(i) == '?') {
-                List<String> operational = strings.stream().map(s -> s + '.').toList();
-                List<String> damaged = strings.stream().map(s -> s + '#').toList();
-                strings.clear();
-                for (String s : operational) {
-                    if (spring.trueForString2(s)) {
-                        strings.add(s);
-                    }
-                }
-                for (String s : damaged) {
-                    if (spring.trueForString2(s)) {
-                        strings.add(s);
-                    }
-                }
-            } else {
-                int j = i;
-                List<String> next = strings.stream().map(s -> s + spring.springs.charAt(j)).toList();
-                strings.clear();
-                for (String s : next) {
-                    if (spring.trueForString2(s)) {
-                        strings.add(s);
-                    }
-                }
-            }
-        }
-
-        return strings.stream().filter(spring::trueForString).count();
+        return parse(input).stream().mapToLong(spring -> countOfSolutions(spring.unfold())).sum();
     }
 
     List<Spring> parse(String input) {
@@ -73,72 +26,52 @@ public class Day12 implements Puzzle {
     }
 
     static long countOfSolutions(Spring spring) {
+        return countOfSolutions(spring, new HashMap<>());
+    }
+
+    static long countOfSolutions(Spring spring, Map<Spring, Long> results) {
+        if (results.containsKey(spring)) return results.get(spring);
         String springs = spring.springs;
-        if (springs.isEmpty() && spring.groups.isEmpty()) return 1;
-        if (springs.isEmpty() || spring.groups.isEmpty()) return 0;
-        if (springs.charAt(0) == '.')
-            return countOfSolutions( new Spring(springs.substring(1), spring.groups));
-        if (springs.charAt(0) == '?')
-            return countOfSolutions(new Spring('.' + springs.substring(1), spring.groups))
-                    + countOfSolutions(new Spring('#' + springs.substring(1), spring.groups));
-        if (springs.charAt(0) == '#') {
-            int index = spring.groups.get(0);
-            if (springs.length() < index) return 0;
-            for (int i = 0; i < index; i++) {
-                if (springs.charAt(i) == '.') return 0;
+        int springsLength = springs.length();
+        List<Integer> groups = spring.groups;
+        if (groups.isEmpty() && !springs.contains("#")) return 1;
+        if (springs.isEmpty() || groups.isEmpty()) return 0;
+        String withoutFirstChar = springs.substring(1);
+        switch (springs.charAt(0)) {
+            case '.' -> {
+                return countOfSolutions(new Spring(withoutFirstChar, groups), results);
             }
-            if (springs.length() == index || springs.charAt(index) == '#') return 0;
-            List newGroups = new ArrayList(spring.groups);
-            newGroups.remove(0);
-            return countOfSolutions(new Spring(springs.substring(index), newGroups));
+            case '?' -> {
+                return countOfSolutions(new Spring('.' + withoutFirstChar, groups), results)
+                        + countOfSolutions(new Spring('#' + withoutFirstChar, groups), results);
+            }
+            case '#' -> {
+                int index = groups.get(0);
+                if (springsLength < index || (springsLength != index && springs.charAt(index) == '#')) return 0;
+                for (int i = 0; i < index; i++) {
+                    if (springs.charAt(i) == '.') return 0;
+                }
+                List<Integer> newGroups = new ArrayList<>(groups);
+                newGroups.remove(0);
+                long result = countOfSolutions(
+                        new Spring(index + 1 > springsLength ? "" : springs.substring(index + 1), newGroups), results);
+                results.put(spring, result);
+                return result;
+            }
+            default -> {}
         }
         throw new IllegalStateException();
     }
 
-    static class Spring {
-        String springs;
-        List<Integer> groups;
-
-        @Override
-        public String toString() {
-            return "Spring{" +
-                    "springs='" + springs + '\'' +
-                    ", groups=" + groups +
-                    '}';
-        }
-
-        public Spring(String springs, List<Integer> groups) {
-            this.springs = springs;
-            this.groups = groups;
-        }
-
-        boolean trueForString(String springs) {
-            String[] groupString = Arrays.stream(springs.split("\\.")).filter(str -> !str.isEmpty()).toArray(String[]::new);
-            if (groups.size() != groupString.length) return false;
-            for (int i = 0; i < groups.size(); i++) {
-                if (groups.get(i) != groupString[i].length()) return false;
-            }
-            return true;
-        }
-
-        boolean trueForString2(String springs) {
-            String[] groupString = Arrays.stream(springs.split("\\.")).filter(str -> !str.isEmpty()).toArray(String[]::new);
-            if (groups.size() < groupString.length) return false;
-            for (int i = 0; i < groupString.length - 1; i++) {
-                if (groups.get(i) != groupString[i].length()) return false;
-            }
-            return true;
-        }
-
-        void unfold() {
+    record Spring(String springs, List<Integer> groups) {
+        Spring unfold() {
             StringJoiner joiner = new StringJoiner("?");
             List<Integer> g = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 joiner.add(springs);
                 g.addAll(groups);
             }
-            this.springs = String.valueOf(joiner);
-            this.groups = g;
+            return new Spring(String.valueOf(joiner), g);
         }
     }
 }
