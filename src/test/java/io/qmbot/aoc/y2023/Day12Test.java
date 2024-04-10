@@ -1,11 +1,7 @@
 package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static io.qmbot.aoc.y2023.Day12.countOfSolutions;
 import static io.qmbot.aoc.y2023.Day12.spring;

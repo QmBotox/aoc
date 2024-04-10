@@ -7,21 +7,54 @@ public class Day16 implements Puzzle {
     @Override
     public Object part1(String input) {
         Place[][] square = parse(input);
-        boolean[][] energy = booleanArray(square);
-
-        beam(Direction.RIGHT, new Point(0, 0), square, energy);
-        int result = 0;
-        for (int y = 0; y < square.length; y++) {
-            for (int x = 0; x < square[0].length; x++) {
-                if (energy[y][x]) result++;
-            }
-        }
-        return result;
+        beam(Direction.RIGHT, new Point(0, -1), square);
+        return max(0, square);
     }
 
     @Override
     public Object part2(String input) {
-        return null;
+        Place[][] square = parse(input);
+        int max = 0;
+        for (int i = 0; i < square.length; i++) {
+            falseMaker(square);
+            beam(Direction.RIGHT, new Point(i, -1), square);
+            max = max(max, square);
+            falseMaker(square);
+            beam(Direction.LEFT, new Point(i, square[0].length), square);
+            max = max(max, square);
+        }
+        for (int i = 0; i < square[0].length; i++) {
+            falseMaker(square);
+            beam(Direction.DOWN, new Point(-1, i), square);
+            max = max(max, square);
+            falseMaker(square);
+            beam(Direction.UP, new Point(square.length, i), square);
+            max = max(max, square);
+        }
+        return max;
+    }
+
+    void falseMaker(Place[][] square) {
+        for (Place[] places : square) {
+            for (int x = 0; x < square[0].length; x++) {
+                places[x].isBeenUp = false;
+                places[x].isBeenDown = false;
+                places[x].isBeenRight = false;
+                places[x].isBeenLeft = false;
+                places[x].isBeen = false;
+            }
+        }
+    }
+
+    int max(int max, Place[][] square) {
+        int result = 0;
+        for (Place[] places : square) {
+            for (int x = 0; x < square[0].length; x++) {
+                if (places[x].isBeen) result++;
+            }
+        }
+        if (result > max) max = result;
+        return max;
     }
 
     Place[][] parse(String input) {
@@ -37,29 +70,15 @@ public class Day16 implements Puzzle {
         return square;
     }
 
-    boolean[][] booleanArray(Place[][] square) {
-        int sizeY = square.length;
-        int sizeX = square[0].length;
-        boolean[][] energy = new boolean[sizeY][sizeX];
-        for (int y = 0; y < sizeY; y++) {
-            for (int x = 0; x < sizeX; x++) {
-                energy[y][x] = false;
-            }
-        }
-        return energy;
-    }
-
-    void beam(Direction direction, Point now, Place[][] square, boolean[][] energy) {
+    void beam(Direction direction, Point now, Place[][] square) {
         int breakLine = -1;
         int y = now.y;
         int x = now.x;
-        energy[y][x] = true;
         y += direction.deltaY;
         x += direction.deltaX;
-
         while (y > -1 && y < square.length && x > -1 && x < square[0].length) {
+            square[y][x].isBeen = true;
             if (square[y][x].c == '.') {
-                energy[y][x] = true;
                 y += direction.deltaY;
                 x += direction.deltaX;
             } else {
@@ -69,25 +88,25 @@ public class Day16 implements Puzzle {
                             case UP -> {
                                 if (!square[y][x].isBeenUp) {
                                     square[y][x].isBeenUp = true;
-                                    beam(Direction.LEFT, new Point(y, x), square, energy);
+                                    beam(Direction.LEFT, new Point(y, x), square);
                                 } else y = breakLine;
                             }
                             case DOWN -> {
                                 if (!square[y][x].isBeenDown) {
                                     square[y][x].isBeenDown = true;
-                                    beam(Direction.RIGHT, new Point(y, x), square, energy);
+                                    beam(Direction.RIGHT, new Point(y, x), square);
                                 } else y = breakLine;
                             }
                             case LEFT -> {
                                 if (!square[y][x].isBeenLeft) {
                                     square[y][x].isBeenLeft = true;
-                                    beam(Direction.UP, new Point(y, x), square, energy);
+                                    beam(Direction.UP, new Point(y, x), square);
                                 } else y = breakLine;
                             }
                             case RIGHT -> {
                                 if (!square[y][x].isBeenRight) {
                                     square[y][x].isBeenRight = true;
-                                    beam(Direction.DOWN, new Point(y, x), square, energy);
+                                    beam(Direction.DOWN, new Point(y, x), square);
                                 } else y = breakLine;
                             }
                         }
@@ -97,26 +116,30 @@ public class Day16 implements Puzzle {
                             case UP -> {
                                 if (!square[y][x].isBeenUp) {
                                     square[y][x].isBeenUp = true;
-                                    beam(Direction.RIGHT, new Point(y, x), square, energy);
-                                } y = breakLine;
+                                    beam(Direction.RIGHT, new Point(y, x), square);
+                                }
+                                y = breakLine;
                             }
                             case DOWN -> {
                                 if (!square[y][x].isBeenDown) {
                                     square[y][x].isBeenDown = true;
-                                    beam(Direction.LEFT, new Point(y, x), square, energy);
-                                } y = breakLine;
+                                    beam(Direction.LEFT, new Point(y, x), square);
+                                }
+                                y = breakLine;
                             }
                             case LEFT -> {
                                 if (!square[y][x].isBeenLeft) {
                                     square[y][x].isBeenLeft = true;
-                                    beam(Direction.DOWN, new Point(y, x), square, energy);
-                                } y = breakLine;
+                                    beam(Direction.DOWN, new Point(y, x), square);
+                                }
+                                y = breakLine;
                             }
                             case RIGHT -> {
                                 if (!square[y][x].isBeenRight) {
                                     square[y][x].isBeenRight = true;
-                                    beam(Direction.UP, new Point(y, x), square, energy);
-                                } y = breakLine;
+                                    beam(Direction.UP, new Point(y, x), square);
+                                }
+                                y = breakLine;
                             }
                         }
                     }
@@ -126,12 +149,11 @@ public class Day16 implements Puzzle {
                                 if (!square[y][x].isBeenLeft || !square[y][x].isBeenRight) {
                                     square[y][x].isBeenRight = true;
                                     square[y][x].isBeenLeft = true;
-                                    beam(Direction.DOWN, new Point(y, x), square, energy);
-                                    beam(Direction.UP, new Point(y, x), square, energy);
+                                    beam(Direction.DOWN, new Point(y, x), square);
+                                    beam(Direction.UP, new Point(y, x), square);
                                 } else y = breakLine;
                             }
                             default -> {
-                                energy[y][x] = true;
                                 y += direction.deltaY;
                                 x += direction.deltaX;
                             }
@@ -143,12 +165,11 @@ public class Day16 implements Puzzle {
                                 if (!square[y][x].isBeenDown || !square[y][x].isBeenUp) {
                                     square[y][x].isBeenUp = true;
                                     square[y][x].isBeenDown = true;
-                                    beam(Direction.LEFT, new Point(y, x), square, energy);
-                                    beam(Direction.RIGHT, new Point(y, x), square, energy);
+                                    beam(Direction.LEFT, new Point(y, x), square);
+                                    beam(Direction.RIGHT, new Point(y, x), square);
                                 } else y = breakLine;
                             }
                             default -> {
-                                energy[y][x] = true;
                                 y += direction.deltaY;
                                 x += direction.deltaX;
                             }
@@ -161,6 +182,7 @@ public class Day16 implements Puzzle {
 
     static class Place {
         char c;
+        boolean isBeen = false;
         boolean isBeenUp = false;
         boolean isBeenDown = false;
         boolean isBeenLeft = false;

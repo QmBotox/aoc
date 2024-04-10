@@ -2,14 +2,16 @@ package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
 import io.qmbot.aoc.y2023.Day14.Point;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Day18 implements Puzzle {
     @Override
     public Object part1(String input) {
-        int[][] m = parse(input);
-        fill(m, 0, 0);
-        return null;
+        List<Point> angles = new ArrayList<>();
+        int[][] m = parse(input, angles);
+        return shoelaceArea(angles);
     }
 
     @Override
@@ -18,7 +20,7 @@ public class Day18 implements Puzzle {
     }
 
 
-    int[][] parse(String input) {
+    static int[][] parse(String input, List<Point> angles) {
         int sizeY = 0;
         int sizeX = 0;
         for (String s : input.split(REGEX_NEW_LINE)) {
@@ -34,12 +36,13 @@ public class Day18 implements Puzzle {
         int[][] matrix = new int[sizeY *2][sizeX * 2];
         Point p = new Point(matrix.length / 2, matrix[0].length / 2);
         for (String s : input.split(REGEX_NEW_LINE)) {
+            angles.add(p);
             p = draw(matrix, p, s);
         }
         return matrix;
     }
 
-    Point draw(int[][] matrix, Point p, String s) {
+    static Point draw(int[][] matrix, Point p, String s) {
         String[] parse = s.split(" ");
         int y = p.y;
         int x = p.x;
@@ -73,6 +76,14 @@ public class Day18 implements Puzzle {
         return new Point(y, x);
     }
 
+    static double shoelaceArea(List<Point> angles) {
+        int n = angles.size();
+        double a = 0.0;
+        for (int i = 0; i < n - 1; i++) {
+            a += angles.get(i).x * angles.get(i + 1).y - angles.get(i + 1).x * angles.get(i).y;
+        }
+        return Math.abs(a + angles.get(n - 1).x * angles.get(0).y - angles.get(0).x * angles.get(n - 1).y) / 2.0;
+    }
 
     public static void fill(int[][] matrix, int startX, int startY) {
 //        int rows = matrix.length;

@@ -2,6 +2,10 @@ package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Day14 implements Puzzle {
     @Override
     public Object part1(String input) {
@@ -13,14 +17,32 @@ public class Day14 implements Puzzle {
     @Override
     public Object part2(String input) {
         char[][] dish = parse(input);
-        for (long i = 0; i < 1000000000; i++){
+        Map<String, Long> map = new HashMap<>();
+        long need = 1000000000;
+        long cycle;
+        for (long i = 0; i < need; i++){
             toNorth(dish);
             toWest(dish);
             toSouth(dish);
             toEast(dish);
+            String s = dishToString(dish);
+            if (map.containsKey(s)) {
+                cycle = i - map.get(s);
+                i = i + cycle * ((need - i) / cycle);
+            }
+            map.put(s, i);
         }
-        toNorth(dish);
         return totalLoad(dish);
+    }
+
+    String dishToString(char[][] dish) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int y = 0; y < dish.length; y++) {
+            for (int x = 0; x < dish[0].length; x++) {
+                stringBuilder.append(dish[y][x]);
+            }
+        }
+        return String.valueOf(stringBuilder);
     }
 
     char[][] parse(String input) {
@@ -63,7 +85,7 @@ public class Day14 implements Puzzle {
     void toSouth(char[][] dish) {
         int sizeY = dish.length;
         int sizeX = dish[0].length;
-        for (int y = 0; y < sizeY; y++){
+        for (int y = sizeY - 1; y > -1; y--){
             for(int x = 0; x < sizeX; x++){
                 if (dish[y][x] == 'O') {
                     fallY(new Point(y, x), dish, 1);
@@ -76,7 +98,7 @@ public class Day14 implements Puzzle {
         int sizeY = dish.length;
         int sizeX = dish[0].length;
         for (int y = 0; y < sizeY; y++){
-            for(int x = 0; x < sizeX; x++){
+            for(int x = sizeX - 1; x > -1; x--){
                 if (dish[y][x] == 'O') {
                     fallX(new Point(y, x), dish, 1);
                 }
@@ -122,6 +144,31 @@ public class Day14 implements Puzzle {
         public Point(int y, int x) {
             this.y = y;
             this.x = x;
+        }
+
+        @Override
+        public String toString() {
+            return "{" + y +
+                    ", " + x +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Point point = (Point) o;
+
+            if (y != point.y) return false;
+            return x == point.x;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = y;
+            result = 31 * result + x;
+            return result;
         }
     }
 }

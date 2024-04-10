@@ -37,30 +37,25 @@ public class Day12 implements Puzzle {
         if (groups.isEmpty() && !springs.contains("#")) return 1;
         if (springs.isEmpty() || groups.isEmpty()) return 0;
         String withoutFirstChar = springs.substring(1);
-        switch (springs.charAt(0)) {
-            case '.' -> {
-                return countOfSolutions(new Spring(withoutFirstChar, groups), results);
-            }
-            case '?' -> {
-                return countOfSolutions(new Spring('.' + withoutFirstChar, groups), results)
+        return switch (springs.charAt(0)) {
+            case '.' -> countOfSolutions(new Spring(withoutFirstChar, groups), results);
+            case '?' -> countOfSolutions(new Spring('.' + withoutFirstChar, groups), results)
                         + countOfSolutions(new Spring('#' + withoutFirstChar, groups), results);
-            }
             case '#' -> {
                 int index = groups.get(0);
-                if (springsLength < index || (springsLength != index && springs.charAt(index) == '#')) return 0;
+                if (springsLength < index || (springsLength != index && springs.charAt(index) == '#')) yield 0;
                 for (int i = 0; i < index; i++) {
-                    if (springs.charAt(i) == '.') return 0;
+                    if (springs.charAt(i) == '.') yield 0;
                 }
                 List<Integer> newGroups = new ArrayList<>(groups);
                 newGroups.remove(0);
                 long result = countOfSolutions(
                         new Spring(index + 1 > springsLength ? "" : springs.substring(index + 1), newGroups), results);
                 results.put(spring, result);
-                return result;
+                yield result;
             }
-            default -> {}
-        }
-        throw new IllegalStateException();
+            default -> throw new IllegalStateException();
+        };
     }
 
     record Spring(String springs, List<Integer> groups) {

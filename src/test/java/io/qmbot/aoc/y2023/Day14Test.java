@@ -26,6 +26,6 @@ public class Day14Test {
 
     @Test
     void part2(){
-        Assertions.assertEquals(400, p.part2(input));
+        Assertions.assertEquals(64, p.part2(input));
     }
 }
