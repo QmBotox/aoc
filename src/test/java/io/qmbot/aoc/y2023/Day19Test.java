@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 public class Day19Test {
     Puzzle p = new Day19();
-
-    String input2 = "ex{x>10:one,m<20:two,a>30:R,A}";
     String input = """
             px{a<2006:qkq,m>2090:A,rfg}
             pv{a>1716:R,A}
@@ -29,7 +27,7 @@ public class Day19Test {
 
     @Test
     public void part1(){
-        Assertions.assertEquals(46, p.part1(input));
+        Assertions.assertEquals(19114, p.part1(input));
     }
 
     @Test

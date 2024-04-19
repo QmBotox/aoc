@@ -13,31 +13,22 @@ public class Day24 implements Puzzle {
     @Override
     public Integer part1(String input) {
         String[] splitInput = input.split("\n");
-
         Blizzards[][] field = field(splitInput);
-
         int maxY = field.length;
         int maxX = field[0].length;
-
         Blizzards[][][] fieldInTime = fieldInTime(findLCM(maxY - 2, maxX - 2), maxY, maxX, field);
-
         return findPath(fieldInTime, new Position(0, 0, 1), maxY - 1, maxX - 2);
     }
 
     @Override
     public Integer part2(String input) {
         String[] splitInput = input.split("\n");
-
         Blizzards[][] field = field(splitInput);
-
         int maxY = field.length;
         int maxX = field[0].length;
-
         Blizzards[][][] fieldInTime = fieldInTime(findLCM(maxY - 2, maxX - 2), maxY, maxX, field);
-
         int a = findPath(fieldInTime, new Position(0, 0, 1), maxY - 1, maxX - 2);
         int b = findPath(fieldInTime, new Position(a, maxY - 1, maxX - 2), 0, 1);
-
         return findPath(fieldInTime, new Position(b, 0, 1), maxY - 1, maxX - 2);
     }
 
