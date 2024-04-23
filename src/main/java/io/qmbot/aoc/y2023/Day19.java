@@ -24,101 +24,7 @@ public class Day19 implements Puzzle {
     public Object part2(String input) {
         String[] inp = input.split(REGEX_EMPTY_LINE);
         Map<String, Rule> rulesMap = parseRules(inp[0]);
-        long result = 0;
-        Set<Rule> rulesMain = new HashSet<>();
-        mainRules("A", rulesMain, rulesMap);
-        int minX = 4000;
-        int maxX = 0;
-        int minM = 4000;
-        int maxM = 0;
-        int minA = 4000;
-        int maxA = 0;
-        int minS = 4000;
-        int maxS = 0;
-        int n;
-        for (Rule r : rulesMain) {
-            if (r instanceof MoreThan) {
-                switch (((MoreThan) r).c) {
-                    case 'x' -> {
-                        n = ((MoreThan) r).n;
-                        if (minX > n) minX = n;
-                    }
-                    case 'm' -> {
-                        n = ((MoreThan) r).n;
-                        if (minM > n) minM = n;
-                    }
-                    case 'a' -> {
-                        n = ((MoreThan) r).n;
-                        if (minA > n) minA = n;
-                    }
-                    case 's' -> {
-                        n = ((MoreThan) r).n;
-                        if (minS > n) minS = n;
-                    }
-                    default -> throw new IllegalArgumentException();
-                }
-            }
-            if (r instanceof LessThan) {
-                switch (((LessThan) r).c) {
-                    case 'x' -> {
-                        n = ((LessThan) r).n;
-                        if (maxX < n) maxX = n;
-                    }
-                    case 'm' -> {
-                        n = ((LessThan) r).n;
-                        if (maxM < n) maxM = n;
-                    }
-                    case 'a' -> {
-                        n = ((LessThan) r).n;
-                        if (maxA < n) maxA = n;
-                    }
-                    case 's' -> {
-                        n = ((LessThan) r).n;
-                        if (maxS < n) maxS = n;
-                    }
-                    default -> throw new IllegalArgumentException();
-                }
-            }
-        }
-        n = 0;
-        for (int x = minX; x <= maxX; x++) {
-            for (int m = minM; m <= maxM; m++) {
-                for (int a = minA; a <= maxA; a++) {
-                    for (int s = minS; s <= maxS; s++) {
-                        Optional<Boolean> ruleResult = rulesMap.get("in").apply(new Part(x, m, a,s));
-                        if (ruleResult.isPresent() && ruleResult.get()) {
-                            result = result + x + m + a + s;
-                        }
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    void mainRules(String s, Set<Rule> rulesMain, Map<String, Rule> rulesMap) {
-        for (String ruleName : rulesMap.keySet()) {
-            Rule rule = rulesMap.get(ruleName);
-            if (rule instanceof RuleList) {
-                for (Rule r : ((RuleList) rule).rules) {
-                    if (r instanceof MoreThan) {
-                        if (((MoreThan) r).s.equals(s)) {
-                            rulesMain.add(r);
-                            mainRules(ruleName, rulesMain, rulesMap);
-                        }
-                    } else if (r instanceof LessThan) {
-                        if (((LessThan) r).s.equals(s)) {
-                            rulesMain.add(r);
-                            mainRules(ruleName, rulesMain, rulesMap);
-                        }
-                    } else if (r instanceof GoTo) {
-                        if (((GoTo) r).s.equals(s)) {
-                            mainRules(ruleName, rulesMain, rulesMap);
-                        }
-                    }
-                }
-            }
-        }
+        return rulesMap.get("in").combinations(new ArrayList<>());
     }
 
     Map<String, Rule> parseRules(String input) {
@@ -163,6 +69,7 @@ public class Day19 implements Puzzle {
 
     interface Rule {
         Optional<Boolean> apply(Part p);
+        long combinations(List<Rule> rulesMain);
     }
 
     record RuleList(List<Rule> rules) implements Rule {
@@ -174,6 +81,21 @@ public class Day19 implements Puzzle {
             }
             return Optional.empty();
         }
+
+        @Override
+        public long combinations(List<Rule> rulesMain) {
+            long result = 0;
+            List<Rule> newList = new ArrayList<>(rulesMain);
+            for (Rule r : rules) {
+                result += r.combinations(newList);
+                if (r instanceof LessThan lessThan) {
+                    newList.add(new MoreThan(lessThan.c, lessThan.n - 1, lessThan.s, lessThan.rules));
+                } else if (r instanceof MoreThan moreThan) {
+                    newList.add(new LessThan(moreThan.c, moreThan.n + 1, moreThan.s, moreThan.rules));
+                }
+            }
+            return result;
+        }
     }
 
     record LessThan(char c, int n, String s, Map<String, Rule> rules) implements Rule {
@@ -183,23 +105,10 @@ public class Day19 implements Puzzle {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            LessThan lessThan = (LessThan) o;
-
-            if (c != lessThan.c) return false;
-            if (n != lessThan.n) return false;
-            return Objects.equals(s, lessThan.s);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = c;
-            result = 31 * result + n;
-            result = 31 * result + (s != null ? s.hashCode() : 0);
-            return result;
+        public long combinations(List<Rule> rulesMain) {
+            List<Rule> newList = new ArrayList<>(rulesMain);
+            newList.add(this);
+            return rules.get(s).combinations(newList);
         }
 
         @Override
@@ -215,23 +124,10 @@ public class Day19 implements Puzzle {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            MoreThan moreThan = (MoreThan) o;
-
-            if (c != moreThan.c) return false;
-            if (n != moreThan.n) return false;
-            return Objects.equals(s, moreThan.s);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = c;
-            result = 31 * result + n;
-            result = 31 * result + (s != null ? s.hashCode() : 0);
-            return result;
+        public long combinations(List<Rule> rulesMain) {
+            List<Rule> newList = new ArrayList<>(rulesMain);
+            newList.add(this);
+            return rules.get(s).combinations(newList);
         }
 
         @Override
@@ -247,6 +143,11 @@ public class Day19 implements Puzzle {
         }
 
         @Override
+        public long combinations(List<Rule> rulesMain) {
+            return rules.get(s).combinations(rulesMain);
+        }
+
+        @Override
         public String toString() {
             return '{' + s + '}';
         }
@@ -259,6 +160,37 @@ public class Day19 implements Puzzle {
         }
 
         @Override
+        public long combinations(List<Rule> rulesMain) {
+            int minX = 0, maxX = 4001, minM = 0, maxM = 4001, minA = 0, maxA = 4001, minS = 0, maxS = 4001;
+            for (Rule r : rulesMain) {
+                if (r instanceof MoreThan moreThan) {
+                    switch ((moreThan.c)) {
+                        case 'x' -> minX = Math.max(minX, moreThan.n);
+                        case 'm' -> minM = Math.max(minM, moreThan.n);
+                        case 'a' -> minA = Math.max(minA, moreThan.n);
+                        case 's' -> minS = Math.max(minS, moreThan.n);
+                        default -> throw new IllegalArgumentException();
+                    }
+                }
+                if (r instanceof LessThan lessThan) {
+                    switch (lessThan.c) {
+                        case 'x' -> maxX = Math.min(maxX, lessThan.n);
+                        case 'm' -> maxM = Math.min(maxM, lessThan.n);
+                        case 'a' -> maxA = Math.min(maxA, lessThan.n);
+                        case 's' -> maxS = Math.min(maxS, lessThan.n);
+                        default -> throw new IllegalArgumentException();
+                    }
+                }
+            }
+            return result(++minX, --maxX) + result(++minM, --maxM) + result(++minA, --maxA) + result(++minS, --maxS);
+        }
+
+        long result(int min, int max) {
+            long count = (long) (max - min + 1) * (max - min + 1) * (max - min + 1);
+            return count * (min + max) / 2L;
+        }
+
+        @Override
         public String toString() {
             return "{A}";
         }
@@ -268,6 +200,11 @@ public class Day19 implements Puzzle {
         @Override
         public Optional<Boolean> apply(Part p) {
             return Optional.of(false);
+        }
+
+        @Override
+        public long combinations(List<Rule> rulesMain) {
+            return 0;
         }
 
         @Override

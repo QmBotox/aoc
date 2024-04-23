@@ -25,6 +25,25 @@ public class Day19Test {
             {x=2461,m=1339,a=466,s=291}
             {x=2127,m=1623,a=2188,s=1013}""";
 
+    String input2 = """
+            cd{m<4000:R,A}
+            ab{a<4000:R,cd}
+            crn{x<4000:R,ab}
+            in{s<4000:R,crn}
+
+            {x=787,m=2655,a=1222,s=2876}
+            """;
+
+    String input3 = """
+            cd{m>1:R,A}
+            ab{a>1:R,cd}
+            crn{x>1:R,ab}
+            in{s>1:R,crn}
+
+            {x=787,m=2655,a=1222,s=2876}
+            """;
+
+
     @Test
     public void part1(){
         Assertions.assertEquals(19114, p.part1(input));
@@ -32,6 +51,14 @@ public class Day19Test {
 
     @Test
     void part2(){
-        Assertions.assertEquals(400, p.part2(input));
+        Assertions.assertEquals(167409079868000L, p.part2(input));
+    }
+    @Test
+    void test(){
+        Assertions.assertEquals(16000L, p.part2(input2));
+    }
+    @Test
+    void test2(){
+        Assertions.assertEquals(4L, p.part2(input3));
     }
 }
