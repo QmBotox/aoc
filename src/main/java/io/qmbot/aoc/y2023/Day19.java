@@ -29,7 +29,7 @@ public class Day19 implements Puzzle {
 
     Map<String, Rule> parseRules(String input) {
         Map<String, Rule> rulesMap = new HashMap<>();
-        rulesMap.put("A", new Accepted());
+        rulesMap.put("A", new Accepted(4000));
         rulesMap.put("R", new Rejected());
         for (String s : input.split(REGEX_NEW_LINE)) {
             List<Rule> rulesList = new ArrayList<>();
@@ -69,6 +69,7 @@ public class Day19 implements Puzzle {
 
     interface Rule {
         Optional<Boolean> apply(Part p);
+
         long combinations(List<Rule> rulesMain);
     }
 
@@ -113,7 +114,7 @@ public class Day19 implements Puzzle {
 
         @Override
         public String toString() {
-            return '{' + c + "<" + n + ":" + s + '}';
+            return '{' + Character.toString(c) + "<" + n + ":" + s + '}';
         }
     }
 
@@ -132,7 +133,7 @@ public class Day19 implements Puzzle {
 
         @Override
         public String toString() {
-            return '{' + c + ">" + n + ":" + s + '}';
+            return '{' + Character.toString(c) + ">" + n + ":" + s + '}';
         }
     }
 
@@ -153,7 +154,7 @@ public class Day19 implements Puzzle {
         }
     }
 
-    record Accepted() implements Rule {
+    record Accepted(int max) implements Rule {
         @Override
         public Optional<Boolean> apply(Part p) {
             return Optional.of(true);
@@ -161,7 +162,8 @@ public class Day19 implements Puzzle {
 
         @Override
         public long combinations(List<Rule> rulesMain) {
-            int minX = 0, maxX = 4001, minM = 0, maxM = 4001, minA = 0, maxA = 4001, minS = 0, maxS = 4001;
+            int newMax = max + 1;
+            int minX = 0, maxX = newMax, minM = 0, maxM = newMax, minA = 0, maxA = newMax, minS = 0, maxS = newMax;
             for (Rule r : rulesMain) {
                 if (r instanceof MoreThan moreThan) {
                     switch ((moreThan.c)) {
@@ -182,12 +184,24 @@ public class Day19 implements Puzzle {
                     }
                 }
             }
-            return result(++minX, --maxX) + result(++minM, --maxM) + result(++minA, --maxA) + result(++minS, --maxS);
+            ++minX;
+            --maxX;
+            ++minM;
+            --maxM;
+            ++minA;
+            --maxA;
+            ++minS;
+            --maxS;
+            long result = result(minX, maxX, minM, maxM, minA, maxA, minS, maxS)
+                    + result(minM, maxM, minX, maxX, minA, maxA, minS, maxS)
+                    + result(minA, maxA, minX, maxX, minM, maxM, minS, maxS)
+                    + result(minS, maxS, minX, maxX, minM, maxM, minA, maxA);
+            return result;
         }
 
-        long result(int min, int max) {
-            long count = (long) (max - min + 1) * (max - min + 1) * (max - min + 1);
-            return count * (min + max) / 2L;
+        long result(long min, long max, long min1, long max1, long min2, long max2, long min3, long max3) {
+            long count = (max1 - min1 + 1) * (max2 - min2 + 1) * (max3 - min3 + 1);
+            return (max - min + 1) * count * (min + max) / 2L;
         }
 
         @Override
