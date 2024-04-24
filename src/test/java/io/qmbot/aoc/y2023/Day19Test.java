@@ -65,22 +65,25 @@ public class Day19Test {
             """;
 
     String input6 = """
-            px{a<2006:qkq,m>2090:A,rfg}
-            pv{a>1716:R,A}
-            rfg{s<537:R,x>2440:R,A}
-            qkq{x<1416:A,crn}
-            crn{x>2662:A,R}
-            in{s<1351:px,qqz}
-            qqz{s>2770:A,m<1801:hdj,R}
-            hdj{m>838:A,pv}
+            px{a<2:qkq,m>9:A,rfg}
+            pv{a>2:R,A}
+            rfg{s<9:R,x>1:R,A}
+            qkq{x<2:A,crn}
+            crn{x>9:A,R}
+            in{s<7:px,qqz}
+            qqz{s>5:A,m<2:hdj,R}
+            hdj{m>0:A,pv}
 
             {x=787,m=2655,a=1222,s=2876}""";
 
     String input7 = """
-            cd{m<2:A,R}
-            ab{a<2:cd,R}
-            crn{x<2:ab,R}
-            in{s<2:crn,R}
+            cd{m>1:R,A}
+            ab{a>1:R,cd}
+            crn{x>1:R,ab}
+            in{s>3999:three,s>1:R,crn}
+            one{m<4000:A,A}
+            two{a<4000:R,one}
+            three{x<4000:R,two}
 
             {x=787,m=2655,a=1222,s=2876}
             """;
@@ -113,6 +116,6 @@ public class Day19Test {
     }
     @Test
     void test5(){
-        Assertions.assertEquals(16004L, p.part2(input7));
+        Assertions.assertEquals(16004L, p.part2(input6));
     }
 }

@@ -29,7 +29,7 @@ public class Day19 implements Puzzle {
 
     Map<String, Rule> parseRules(String input) {
         Map<String, Rule> rulesMap = new HashMap<>();
-        rulesMap.put("A", new Accepted(4000));
+        rulesMap.put("A", new Accepted(10));
         rulesMap.put("R", new Rejected());
         for (String s : input.split(REGEX_NEW_LINE)) {
             List<Rule> rulesList = new ArrayList<>();
