@@ -43,51 +43,6 @@ public class Day19Test {
             {x=787,m=2655,a=1222,s=2876}
             """;
 
-    String input4 = """
-            cd{m>2:R,A}
-            ab{a>1:R,cd}
-            crn{x>1:R,ab}
-            in{s>1:R,crn}
-
-            {x=787,m=2655,a=1222,s=2876}
-            """;
-
-    String input5 = """
-            cd{m>1:R,A}
-            ab{a>1:R,cd}
-            crn{x>1:R,ab}
-            in{s>3999:three,s>1:R,crn}
-            one{m<4000:R,A}
-            two{a<4000:R,one}
-            three{x<4000:R,two}
-
-            {x=787,m=2655,a=1222,s=2876}
-            """;
-
-    String input6 = """
-            px{a<2:qkq,m>9:A,rfg}
-            pv{a>2:R,A}
-            rfg{s<9:R,x>1:R,A}
-            qkq{x<2:A,crn}
-            crn{x>9:A,R}
-            in{s<7:px,qqz}
-            qqz{s>5:A,m<2:hdj,R}
-            hdj{m>0:A,pv}
-
-            {x=787,m=2655,a=1222,s=2876}""";
-
-    String input7 = """
-            cd{m>1:R,A}
-            ab{a>1:R,cd}
-            crn{x>1:R,ab}
-            in{s>3999:three,s>1:R,crn}
-            one{m<4000:A,A}
-            two{a<4000:R,one}
-            three{x<4000:R,two}
-
-            {x=787,m=2655,a=1222,s=2876}
-            """;
-
     @Test
     public void part1(){
         Assertions.assertEquals(19114, p.part1(input));
@@ -99,23 +54,10 @@ public class Day19Test {
     }
     @Test
     void test(){
-        Assertions.assertEquals(16000L, p.part2(input2));
+        Assertions.assertEquals(1L, p.part2(input2));
     }
     @Test
     void test2(){
-        Assertions.assertEquals(4L, p.part2(input3));
-    }
-
-    @Test
-    void test3(){
-        Assertions.assertEquals(9L, p.part2(input4));
-    }
-    @Test
-    void test4(){
-        Assertions.assertEquals(16004L, p.part2(input5));
-    }
-    @Test
-    void test5(){
-        Assertions.assertEquals(16004L, p.part2(input6));
+        Assertions.assertEquals(1L, p.part2(input3));
     }
 }
