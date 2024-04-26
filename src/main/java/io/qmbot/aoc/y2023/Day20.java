@@ -8,6 +8,9 @@ public class Day20 implements Puzzle {
     @Override
     public Object part1(String input) {
         LinkedList<Signal> signals = new LinkedList<>();
+        Map<String, Module> map = parse(input);
+        pushButton(map);
+        pushButton(map);
         return null;
     }
 
@@ -16,24 +19,95 @@ public class Day20 implements Puzzle {
         return null;
     }
 
-    interface Module {
-        List<Signal> process(Signal signal);
+    Map<String, Module> parse(String input) {
+        Map<String, Module> parse = new HashMap<>();
+        for (String s : input.split(REGEX_NEW_LINE)) {
+            String[] nameAndDestinations = s.split(" -> ");
+            List<String> destinations;
+            if (nameAndDestinations.length == 2) {
+                destinations = Arrays.stream(nameAndDestinations[1].split(", ")).toList();
+            } else {
+                destinations = new ArrayList<>();
+            }
+            char type = nameAndDestinations[0].charAt(0);
+            String name;
+            switch (type) {
+                case '%' -> {
+                    name = nameAndDestinations[0].substring(1);
+                    parse.put(name, new FlipFlop(destinations, name));
+                }
+                case '&' -> {
+                    name = nameAndDestinations[0].substring(1);
+                    parse.put(name, new Conjunction(destinations, name));
+                }
+                default -> parse.put(nameAndDestinations[0], new Broadcaster(destinations));
+            }
+        }
+        for (String name : parse.keySet()) {
+            if (parse.get(name) instanceof Conjunction conjunction) {
+                for (String s : parse.keySet()) {
+                    if (parse.get(s).destinations.contains(name)) conjunction.state.put(s, true);
+                }
+            }
+        }
+        return parse;
     }
 
-    record Broadcaster(List<String> destinations) implements Module {
-        @Override
-        public List<Signal> process(Signal signal) {
-            return null;
+    void pushButton(Map<String, Module> modules) {
+        LinkedList<Signal> signals = new LinkedList<>();
+        signals.add(new Signal(true, "", "broadcaster"));
+        while (!signals.isEmpty()) {
+            Signal s = signals.removeFirst();
+            System.out.println(s);
+            signals.addAll(modules.get(s.destination).process(s));
         }
     }
 
-    static class FlipFlop implements Module {
+    abstract static class Module {
         List<String> destinations;
+
+        abstract List<Signal> process(Signal signal);
+
+        public Module(List<String> destinations) {
+            this.destinations = destinations;
+        }
+    }
+
+    static final class Broadcaster extends Module {
+        Broadcaster(List<String> destinations) {
+            super(destinations);
+        }
+
+        @Override
+        public List<Signal> process(Signal signal) {
+            List<Signal> process = new ArrayList<>();
+            for (String d : destinations) {
+                process.add(new Signal(signal.isLow, signal.destination, d));
+            }
+            return process;
+        }
+
+        @Override
+        public String toString() {
+            return "Broadcaster[" +
+                    "destinations=" + destinations + ']';
+        }
+
+    }
+
+    static class FlipFlop extends Module {
         boolean on = false;
         String name;
 
+        @Override
+        public String toString() {
+            return "FF" + name + "{" +
+                    "destinations=" + destinations +
+                    ", on=" + on + '}';
+        }
+
         public FlipFlop(List<String> destinations, String name) {
-            this.destinations = destinations;
+            super(destinations);
             this.name = name;
         }
 
@@ -51,32 +125,27 @@ public class Day20 implements Puzzle {
         }
     }
 
-    static class Conjunction implements Module {
-        List<String> destinations;
+    static class Conjunction extends Module {
         Map<String, Boolean> state = new HashMap<>();
         String name;
 
-        public Conjunction(List<String> destinations, String name) {
-            this.destinations = destinations;
-            this.name = name;
+        @Override
+        public String toString() {
+            return "C" + name + "{" +
+                    "destinations=" + destinations +
+                    ", state=" + state + '}';
         }
 
-        void setSources(List<String> sources) {
-            for (String s : sources) {
-                state.put(s, true);
-            }
+        public Conjunction(List<String> destinations, String name) {
+            super(destinations);
+            this.name = name;
         }
 
         @Override
         public List<Signal> process(Signal signal) {
             List<Signal> process = new ArrayList<>();
-            boolean allHigh = true;
-            for (boolean b : state.values()) {
-                if (!b) {
-                    allHigh = false;
-                    break;
-                }
-            }
+            state.put(signal.source, signal.isLow);
+            boolean allHigh = state.values().stream().noneMatch(b -> b);
             for (String s : destinations) {
                 process.add(new Signal(allHigh, name, s));
             }
@@ -88,6 +157,11 @@ public class Day20 implements Puzzle {
         boolean isLow;
         String source;
         String destination;
+
+        @Override
+        public String toString() {
+            return source + " -" + (isLow?"low":"high") + "-> " + destination;
+        }
 
         public Signal(boolean isLow, String source, String destination) {
             this.isLow = isLow;

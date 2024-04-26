@@ -29,13 +29,6 @@ public class Day18Test {
             L 2 (#015232)
             U 2 (#7a21e3)""";
 
-    String input2 = """
-            R 2 (#70c710)
-            D 2 (#0dc571)
-            L 2 (#5713f0)
-            U 2 (#caa173)
-            """;
-
     @Test
     public void part1(){
         Assertions.assertEquals(62L, p.part1(input));
@@ -50,7 +43,12 @@ public class Day18Test {
     void shoelaceAreaTest(){
         List<Day11.Point> angles = new ArrayList<>();
         AtomicInteger ai = new AtomicInteger(0);
-        int m = perimeter(input2, angles, true);
+        int m = perimeter("""
+            R 2 (#70c710)
+            D 2 (#0dc571)
+            L 2 (#5713f0)
+            U 2 (#caa173)
+            """, angles, true);
         System.out.println(shoelaceArea(angles));
         System.out.println(countInside(ai.get(), angles));
     }
