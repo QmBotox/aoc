@@ -5,30 +5,39 @@ import io.qmbot.aoc.Puzzle;
 import java.util.*;
 
 public class Day20 implements Puzzle {
+    static boolean printTurn = false;
     @Override
     public Object part1(String input) {
-        LinkedList<Signal> signals = new LinkedList<>();
         Map<String, Module> map = parse(input);
-        pushButton(map);
-        pushButton(map);
-        return null;
+        Result result = new Result();
+        for (int i = 0; i < 1000; i++) {
+            result.add(pushButton(map));
+        }
+        return result.highCount * result.lowCount;
     }
 
     @Override
     public Object part2(String input) {
-        return null;
+        Map<String, Module> map = parse(input);
+        int count = 1;
+        Result r;
+        do {
+            r = pushButton(map);
+            if (printTurn) {
+                System.out.println(count);
+                printTurn = false;
+            }
+            count++;
+//            if (count % 1000 == 0) System.out.println(count);
+        } while (!r.rxIsLow);
+        return count;
     }
 
-    Map<String, Module> parse(String input) {
+    static Map<String, Module> parse(String input) {
         Map<String, Module> parse = new HashMap<>();
         for (String s : input.split(REGEX_NEW_LINE)) {
             String[] nameAndDestinations = s.split(" -> ");
-            List<String> destinations;
-            if (nameAndDestinations.length == 2) {
-                destinations = Arrays.stream(nameAndDestinations[1].split(", ")).toList();
-            } else {
-                destinations = new ArrayList<>();
-            }
+            List<String> destinations = Arrays.stream(nameAndDestinations[1].split(", ")).toList();
             char type = nameAndDestinations[0].charAt(0);
             String name;
             switch (type) {
@@ -53,14 +62,41 @@ public class Day20 implements Puzzle {
         return parse;
     }
 
-    void pushButton(Map<String, Module> modules) {
+    static Result pushButton(Map<String, Module> modules) {
         LinkedList<Signal> signals = new LinkedList<>();
-        signals.add(new Signal(true, "", "broadcaster"));
+        signals.add(new Signal(true, "button", "broadcaster"));
+        Result result = new Result();
+        boolean rxIsLow = false;
         while (!signals.isEmpty()) {
             Signal s = signals.removeFirst();
-            System.out.println(s);
-            signals.addAll(modules.get(s.destination).process(s));
+//            System.out.println(s);
+            result.add(s);
+            Module m = modules.get(s.destination);
+            if (m != null) {
+                signals.addAll(m.process(s));
+            } else if (s.isLow) {
+                rxIsLow = true;
+                break;
+            }
         }
+        result.rxIsLow = rxIsLow;
+        return result;
+    }
+
+    static class Result {
+        long highCount = 0;
+        long lowCount = 0;
+        boolean rxIsLow = false;
+
+        void add(Signal s) {
+            if (s.isLow) highCount++; else lowCount++;
+        }
+
+        void add(Result r) {
+            highCount += r.highCount;
+            lowCount += r.lowCount;
+        }
+
     }
 
     abstract static class Module {
@@ -149,6 +185,14 @@ public class Day20 implements Puzzle {
             for (String s : destinations) {
                 process.add(new Signal(allHigh, name, s));
             }
+            if (name.equals("qb") && state.values().stream().anyMatch(b -> !b)) {
+                System.out.println(state);
+                Day20.printTurn = true;
+            }
+//            if (!allHigh && destinations.contains("qb")) {
+//                System.out.println(name + " : ");
+//                Day20.printTurn = true;
+//            }
             return process;
         }
     }
