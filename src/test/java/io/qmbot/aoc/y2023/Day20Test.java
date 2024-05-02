@@ -42,9 +42,4 @@ public class Day20Test {
         Day20.pushButton(map);
         Day20.pushButton(map);
     }
-
-//    @Test
-//    void part2() {
-//        Assertions.assertEquals(952408144115L, p.part2(input1));
-//    }
 }

@@ -1,10 +1,7 @@
 package io.qmbot.aoc.y2023;
 
 import io.qmbot.aoc.Puzzle;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 

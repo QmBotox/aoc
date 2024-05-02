@@ -21,16 +21,22 @@ public class Day20 implements Puzzle {
         Map<String, Module> map = parse(input);
         int count = 1;
         Result r;
+        long i = 1;
+        int round = 0;
+        Conjunction module = (Conjunction) map.values().stream().filter(m -> m.destinations.contains("rx")).findAny().get();
+        int forLow = module.state.size();
         do {
             r = pushButton(map);
-            if (printTurn) {
+            if (printTurn ) {
                 System.out.println(count);
+                i = i * count;
+                round++;
                 printTurn = false;
+
             }
             count++;
-//            if (count % 1000 == 0) System.out.println(count);
-        } while (!r.rxIsLow);
-        return count;
+        } while (!r.rxIsLow && round != forLow);
+        return i;
     }
 
     static Map<String, Module> parse(String input) {
@@ -69,7 +75,6 @@ public class Day20 implements Puzzle {
         boolean rxIsLow = false;
         while (!signals.isEmpty()) {
             Signal s = signals.removeFirst();
-//            System.out.println(s);
             result.add(s);
             Module m = modules.get(s.destination);
             if (m != null) {
@@ -185,14 +190,9 @@ public class Day20 implements Puzzle {
             for (String s : destinations) {
                 process.add(new Signal(allHigh, name, s));
             }
-            if (name.equals("qb") && state.values().stream().anyMatch(b -> !b)) {
-                System.out.println(state);
-                Day20.printTurn = true;
+            if (destinations.contains("rx") && state.values().stream().anyMatch(b -> !b)) {
+                printTurn = true;
             }
-//            if (!allHigh && destinations.contains("qb")) {
-//                System.out.println(name + " : ");
-//                Day20.printTurn = true;
-//            }
             return process;
         }
     }
