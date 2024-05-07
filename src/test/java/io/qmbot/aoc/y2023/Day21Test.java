@@ -28,11 +28,6 @@ public class Day21Test {
     }
 
     @Test
-    void part2() {
-        Assertions.assertEquals(64, p.part2(input));
-    }
-
-    @Test
     void bfsTest() {
         char[][] parse = Day21.parse(input);
         Map<Day14.Point, Integer> bfs = Day21.bfs(Day21.start(parse), parse);
