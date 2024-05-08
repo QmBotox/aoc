@@ -9,8 +9,29 @@ public class Day22 implements Puzzle {
     public Object part1(String input) {
         List<Brick> bricks = parse(input);
         bricks = bricks.stream().sorted((Comparator.comparingInt(o -> o.start.z))).toList();
-        bricks = fall(bricks);
-        return useless2(bricks);
+        List<Brick> trueResult = fall(bricks);
+        Map<Brick, List<Brick>> supportTo = support(trueResult);
+        int n = 0;
+//        for (int i = 0; i < bricks.size(); i++) {
+//            List<Brick> newBricks = new ArrayList<>(trueResult);
+//            newBricks.remove(i);
+//            if (newBricks.equals(fall(newBricks))) n++;
+//        }
+        for (Brick b : supportTo.keySet()) {
+            boolean canDisintegrate = true;
+            for (Brick brick : supportTo.get(b)) {
+                int supporters = 0;
+                for (List<Brick> bricksList : supportTo.values()){
+                    if (bricksList.contains(brick)) supporters++;
+                }
+                if (supporters < 2) {
+                    canDisintegrate = false;
+                    break;
+                }
+            }
+            if (canDisintegrate) n++;
+        }
+        return n;
     }
 
     @Override
@@ -30,22 +51,19 @@ public class Day22 implements Puzzle {
         }).toList();
     }
 
-    int useless(List<Brick> bricks) {
-        int useless = 0;
+    Map<Brick, List<Brick>> support(List<Brick> bricks) {
+        Map<Brick, List<Brick>> support = new HashMap<>();
         for (Brick b : bricks) {
             List<Brick> bricksUp = new ArrayList<>();
             for (Brick brick : bricks) {
-                if (brick.start.z == b.start.z + 1) {
+                int i = 0;
+                if (brick.start.z == b.end.z + 1 && brick.intersects(b)) {
                     bricksUp.add(brick);
                 }
             }
-            int n = 0;
-            for (Brick brick : bricksUp) {
-                if (b.intersects(brick)) n++;
-            }
-            if (n == 0) useless++;
+            support.put(b, bricksUp);
         }
-        return useless;
+        return support;
     }
     int useless2(List<Brick> bricks) {
         int useless = 0;
@@ -83,6 +101,7 @@ public class Day22 implements Puzzle {
     static class Brick {
         Point start;
         Point end;
+
 
         @Override
         public boolean equals(Object o) {
