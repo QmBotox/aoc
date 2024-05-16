@@ -11,32 +11,35 @@ public class Day22 implements Puzzle {
         bricks = bricks.stream().sorted((Comparator.comparingInt(o -> o.start.z))).toList();
         List<Brick> trueResult = fall(bricks);
         Map<Brick, List<Brick>> supportTo = support(trueResult);
-        int n = 0;
-//        for (int i = 0; i < bricks.size(); i++) {
-//            List<Brick> newBricks = new ArrayList<>(trueResult);
-//            newBricks.remove(i);
-//            if (newBricks.equals(fall(newBricks))) n++;
-//        }
+        Map<Brick, List<Brick>> sup = supporters(trueResult);
+        Set<Brick> nn = new HashSet<>();
         for (Brick b : supportTo.keySet()) {
             boolean canDisintegrate = true;
             for (Brick brick : supportTo.get(b)) {
-                int supporters = 0;
-                for (List<Brick> bricksList : supportTo.values()){
-                    if (bricksList.contains(brick)) supporters++;
-                }
-                if (supporters < 2) {
+                if (sup.get(brick).size() < 2) {
                     canDisintegrate = false;
                     break;
                 }
             }
-            if (canDisintegrate) n++;
+            if (canDisintegrate) {
+                nn.add(b);
+            }
         }
-        return n;
+        return nn.size();
     }
 
     @Override
     public Object part2(String input) {
-        return null;
+        List<Brick> bricks = parse(input);
+        bricks = bricks.stream().sorted((Comparator.comparingInt(o -> o.start.z))).toList();
+        List<Brick> trueResult = fall(bricks);
+        int sum = 0;
+        for (Brick b : trueResult) {
+            List<Brick> bricksAfterDelB = new ArrayList<>(trueResult.stream().toList());
+            bricksAfterDelB.remove(b);
+            sum += fallInt(bricksAfterDelB);
+        }
+        return sum;
     }
 
     List<Brick> parse(String input) {
@@ -56,7 +59,6 @@ public class Day22 implements Puzzle {
         for (Brick b : bricks) {
             List<Brick> bricksUp = new ArrayList<>();
             for (Brick brick : bricks) {
-                int i = 0;
                 if (brick.start.z == b.end.z + 1 && brick.intersects(b)) {
                     bricksUp.add(brick);
                 }
@@ -65,30 +67,19 @@ public class Day22 implements Puzzle {
         }
         return support;
     }
-    int useless2(List<Brick> bricks) {
-        int useless = 0;
-        Set<Brick> uselessSet = new HashSet<>();
+
+    Map<Brick, List<Brick>> supporters(List<Brick> bricks) {
+        Map<Brick, List<Brick>> supporters = new HashMap<>();
         for (Brick b : bricks) {
             List<Brick> bricksDown = new ArrayList<>();
             for (Brick brick : bricks) {
-                if (brick.start.z == b.start.z - 1 && b.intersects(brick)) {
+                if (brick.end.z + 1 == b.start.z && brick.intersects(b)) {
                     bricksDown.add(brick);
                 }
             }
-            if (bricksDown.size() > 1) {
-                uselessSet.addAll(bricksDown);
-            }
+            supporters.put(b, bricksDown);
         }
-        for (Brick b : bricks) {
-            List<Brick> bricksUp = new ArrayList<>();
-            for (Brick brick : bricks) {
-                if (brick.start.z == b.start.z + 1 && b.intersects(brick)) {
-                    bricksUp.add(brick);
-                }
-            }
-            if (bricksUp.size() == 0) uselessSet.add(b);
-        }
-        return uselessSet.size();
+        return supporters;
     }
 
     List<Brick> fall(List<Brick> bricks) {
@@ -98,6 +89,20 @@ public class Day22 implements Puzzle {
         }
         return newBricks;
     }
+
+    int fallInt(List<Brick> bricks) {
+        List<Brick> newBricks = new ArrayList<>();
+        int i = 0;
+        for (Brick b : bricks) {
+            Brick newBrick = b.fall(newBricks);
+            newBricks.add(newBrick);
+            if (!b.equals(newBrick)) {
+                i++;
+            }
+        }
+        return i;
+    }
+
     static class Brick {
         Point start;
         Point end;
@@ -126,15 +131,9 @@ public class Day22 implements Puzzle {
             this.end = end;
         }
 
-        boolean intersects(Brick brick){
-            return (((brick.start.y >= start.y && brick.start.y <= end.y)
-                    || (brick.end.y >= start.y && brick.end.y <= end.y)
-                    || (end.y >= brick.start.y && end.y <= brick.end.y)
-                    || (start.y >= brick.start.y && start.y <= brick.end.y))
-                    && ((brick.start.x >= start.x && brick.start.x <= end.x)
-                    || (brick.end.x >= start.x && brick.end.y <= end.x)
-                    || (end.x >= brick.start.x && end.x <= brick.end.x)
-                    || (start.x >= brick.start.x && start.x <= brick.end.x))) ;
+        boolean intersects(Brick brick) {
+            return (Math.max(brick.start.y, start.y) <= Math.min(brick.end.y, end.y)
+                    && Math.max(brick.start.x, start.x) <= Math.min(brick.end.x, end.x));
         }
 
         Brick fall(List<Brick> bricks) {

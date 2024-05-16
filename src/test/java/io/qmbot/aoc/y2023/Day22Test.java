@@ -16,13 +16,55 @@ public class Day22Test {
             0,1,6~2,1,6
             1,1,8~1,1,9""";
 
+    String input2 = """
+            0,0,1~0,1,1
+            1,1,1~1,1,1
+            0,0,2~0,0,2
+            0,1,2~1,1,2""";
+
+    String input3 = """
+            0,0,1~1,0,1
+            0,1,1~0,1,2
+            0,0,5~0,0,5
+            0,0,4~0,1,4""";
+
+    String input4 = """
+            1,0,1~1,2,1
+            1,1,2~1,3,2""";
+
+    String input5 = """
+            0,0,1~0,0,1
+            1,1,1~1,1,1
+            0,0,2~0,1,2
+            0,1,3~1,1,3""";
+
     @Test
     public void part1() {
         Assertions.assertEquals(5, p.part1(input));
     }
 
     @Test
-    void part2(){
-        Assertions.assertEquals(167409079868000L, p.part2(input));
+    public void part1one() {
+        Assertions.assertEquals(3, p.part1(input2));
+    }
+
+    @Test
+    public void part1two() {
+        Assertions.assertEquals(2, p.part1(input3));
+    }
+
+    @Test
+    public void part1three() {
+        Assertions.assertEquals(1, p.part1(input4));
+    }
+
+    @Test
+    public void part1four() {
+        Assertions.assertEquals(2, p.part1(input5));
+    }
+
+    @Test
+    void part2() {
+        Assertions.assertEquals(7, p.part2(input));
     }
 }
