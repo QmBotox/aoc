@@ -6,6 +6,7 @@ import io.qmbot.aoc.y2023.Day14.Point;
 import java.util.*;
 
 public class Day23 implements Puzzle {
+    static int maxDeep = 0;
     @Override
     public Object part1(String input) {
         char[][] snowIsland = parse(input);
@@ -19,7 +20,8 @@ public class Day23 implements Puzzle {
         char[][] snowIsland = parse(input);
         Point start = new Point(0, 1);
         Point end = new Point(snowIsland.length - 1, snowIsland[0].length - 2);
-        return dfs2(start, end, snowIsland) - 1;
+        dfs2(start, end, snowIsland);
+        return maxDeep;
     }
 
     static char[][] parse(String input) {
@@ -35,35 +37,37 @@ public class Day23 implements Puzzle {
         if (current.x == end.x && current.y == end.y) {
             return 1;
         }
-        visited[current.x][current.y] = true;
+        visited[current.y][current.x] = true;
         int maxPath = 0;
         for (Point neighbor : neighbors(current, snowIsland)) {
-            if (!visited[neighbor.x][neighbor.y]) {
+            if (!visited[neighbor.y][neighbor.x]) {
                 int pathLength = dfsHelper(neighbor, end, snowIsland, visited);
                 maxPath = Math.max(maxPath, pathLength);
             }
         }
-        visited[current.x][current.y] = false;
+        visited[current.y][current.x] = false;
         return maxPath + 1;
     }
     public static int dfs2(Point start, Point end, char[][] snowIsland) {
         boolean[][] visited = new boolean[snowIsland.length][snowIsland[0].length];
-        return dfsHelper2(start, end, snowIsland, visited);
+        return dfsHelper2(start, end, snowIsland, visited, 0);
     }
 
-    private static int dfsHelper2(Point current, Point end, char[][] snowIsland, boolean[][] visited) {
+    private static int dfsHelper2(Point current, Point end, char[][] snowIsland, boolean[][] visited, int i) {
+
         if (current.x == end.x && current.y == end.y) {
+            maxDeep = Math.max(i, maxDeep);
             return 1;
         }
-        visited[current.x][current.y] = true;
+        visited[current.y][current.x] = true;
         int maxPath = 0;
         for (Point neighbor : neighbors2(current, snowIsland)) {
-            if (!visited[neighbor.x][neighbor.y]) {
-                int pathLength = dfsHelper2(neighbor, end, snowIsland, visited);
+            if (!visited[neighbor.y][neighbor.x]) {
+                int pathLength = dfsHelper2(neighbor, end, snowIsland, visited, i + 1);
                 maxPath = Math.max(maxPath, pathLength);
             }
         }
-        visited[current.x][current.y] = false;
+        visited[current.y][current.x] = false;
         return maxPath + 1;
     }
 
