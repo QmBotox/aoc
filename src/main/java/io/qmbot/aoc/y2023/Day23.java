@@ -19,16 +19,16 @@ public class Day23 implements Puzzle {
         char[][] snowIsland = parse(input);
         Point start = new Point(0, 1);
         Point end = new Point(snowIsland.length - 1, snowIsland[0].length - 2);
-        Map<Point, List<PointAndDestination>> map = map(snowIsland, start, end);
-        return dfs(start, end, map, new HashSet<>());
+        Map<Point, List<PointAndDistance>> map = map(snowIsland, start, end);
+        return dfs(start, end, map, new LinkedList<>());
     }
 
     static char[][] parse(String input) {
         return Arrays.stream(input.split(REGEX_NEW_LINE)).map(String::toCharArray).toArray(char[][]::new);
     }
 
-    static Map<Point, List<PointAndDestination>> map(char[][] snowIsland, Point start, Point end) {
-        Map<Point, List<PointAndDestination>> map = new HashMap<>();
+    static Map<Point, List<PointAndDistance>> map(char[][] snowIsland, Point start, Point end) {
+        Map<Point, List<PointAndDistance>> map = new HashMap<>();
         List<Point> list = new ArrayList<>();
         list.add(start);
         list.add(end);
@@ -41,43 +41,15 @@ public class Day23 implements Puzzle {
             }
         }
         for (Point point : list) {
-            List<PointAndDestination> padList = new ArrayList<>();
-            for (Point p : list) {
-                List<Point> path = findShortestPath(point, p, snowIsland);
-                int contains = 0;
-                for (Point fromPath : path) {
-                    if (list.contains(fromPath)) contains++;
-                }
-                if (contains == 2) {
-                    padList.add(new PointAndDestination(p, path.size() - 1));
-                }
+            List<PointAndDistance> padList = new ArrayList<>();
+            List<Point> neighbors = neighbors2(point, snowIsland);
+            for (Point neighbor : neighbors) {
+                PointAndDistance pad = pad(point, neighbor, list, snowIsland);
+                padList.add(pad);
             }
             map.put(point, padList);
         }
         return map;
-    }
-
-    public static List<Point> findShortestPath(Point start, Point end, char[][] snowIsland) {
-        Queue<Point> queue = new LinkedList<>();
-        Set<Point> visited = new HashSet<>();
-        Map<Point, Point> predecessors = new HashMap<>();
-        queue.add(start);
-        visited.add(start);
-        predecessors.put(start, null);
-        while (!queue.isEmpty()) {
-            Point current = queue.poll();
-            if (current.equals(end)) {
-                return reconstructPath(predecessors, end);
-            }
-            for (Point neighbor : neighbors2(current, snowIsland)) {
-                if (!visited.contains(neighbor)) {
-                    queue.add(neighbor);
-                    visited.add(neighbor);
-                    predecessors.put(neighbor, current);
-                }
-            }
-        }
-        return Collections.emptyList();
     }
 
     private static List<Point> reconstructPath(Map<Point, Point> predecessors, Point end) {
@@ -105,13 +77,13 @@ public class Day23 implements Puzzle {
         return maxPath + 1;
     }
 
-    private static int dfs(Point current, Point end, Map<Point, List<PointAndDestination>> map, Set<Point> visited) {
+    private static int dfs(Point current, Point end, Map<Point, List<PointAndDistance>> map, LinkedList<Point> visited) {
         if (current.equals(end)) {
             return 0;
         }
         visited.add(current);
         int maxPath = 0;
-        for (PointAndDestination pad : map.get(current)) {
+        for (PointAndDistance pad : map.get(current)) {
             Point neighbor = pad.point;
             if (!visited.contains(neighbor)) {
                 int pathLength = dfs(neighbor, end, map, visited);
@@ -166,7 +138,22 @@ public class Day23 implements Puzzle {
         return neighbors;
     }
 
-    static class PointAndDestination {
+    static PointAndDistance pad(Point start, Point current, List<Point> points, char[][] snowIsland) {
+        List<Point> visited = new ArrayList<>();
+        visited.add(start);
+        List<Point> neighbors;
+        int step = 1;
+        while (!points.contains(current)) {
+            step++;
+            visited.add(current);
+            neighbors = neighbors2(current, snowIsland);
+            neighbors.removeAll(visited);
+            current = neighbors.get(0);
+        }
+        return new PointAndDistance(current, step);
+    }
+
+    static class PointAndDistance {
         Point point;
         int distance;
 
@@ -174,11 +161,11 @@ public class Day23 implements Puzzle {
         public String toString() {
             return "PointAndDestination{" +
                     "point=" + point +
-                    ", destination=" + distance +
+                    ", distance=" + distance +
                     '}';
         }
 
-        public PointAndDestination(Point point, int distance) {
+        public PointAndDistance(Point point, int distance) {
             this.point = point;
             this.distance = distance;
         }
