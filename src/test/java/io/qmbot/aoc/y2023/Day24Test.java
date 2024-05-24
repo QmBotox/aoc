@@ -16,7 +16,7 @@ public class Day24Test {
 
     @Test
     public void part1() {
-        Assertions.assertEquals(94, p.part1(input));
+        Assertions.assertEquals(2, p.part1(input));
     }
 
     @Test
