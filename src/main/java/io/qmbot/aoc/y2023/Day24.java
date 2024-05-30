@@ -14,8 +14,8 @@ public class Day24 implements Puzzle {
     @Override
     public Object part1(String input) {
         List<Hail> list = parse(input);
-        BigDecimal area1 = BigDecimal.valueOf(7);
-        BigDecimal area2 = BigDecimal.valueOf(27);
+        BigDecimal area1 = BigDecimal.valueOf(7);//BigDecimal.valueOf(200_000_000).multiply(BigDecimal.valueOf(1_000_000));
+        BigDecimal area2 = BigDecimal.valueOf(27);//BigDecimal.valueOf(400_000_000).multiply(BigDecimal.valueOf(1_000_000));
         int count = 0;
         for (int i = 0; i < list.size(); i++) {
             for (int j = i + 1; j < list.size(); j++) {
@@ -31,7 +31,7 @@ public class Day24 implements Puzzle {
                 int jo = 0;
                 if (area1.compareTo(x) <= 0 && area2.compareTo(x) >= 0
                         && area1.compareTo(y) <= 0 && area2.compareTo(y) >= 0
-                        && t2.compareTo(BigDecimal.valueOf(1)) >= 0 && t1.compareTo(BigDecimal.valueOf(1)) >= 0) {
+                        && t2.compareTo(BigDecimal.ONE) >= 0 && t1.compareTo(BigDecimal.ONE) >= 0) {
                     //area1 <= x && area2 >= x && area1 <= y && area2 >= y && t2 >= 1 && t1 >= 1) {
                     count++;
                 }
