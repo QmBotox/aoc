@@ -14,18 +14,18 @@ public class Day24 implements Puzzle {
     @Override
     public Object part1(String input) {
         List<Hail> list = parse(input);
-        BigDecimal area1 = BigDecimal.valueOf(7);//BigDecimal.valueOf(200_000_000).multiply(BigDecimal.valueOf(1_000_000));
-        BigDecimal area2 = BigDecimal.valueOf(27);//BigDecimal.valueOf(400_000_000).multiply(BigDecimal.valueOf(1_000_000));
+        BigDecimal area1 = new BigDecimal("200000000000000");//BigDecimal.valueOf(200_000_000).multiply(BigDecimal.valueOf(1_000_000));
+        BigDecimal area2 = new BigDecimal("400000000000000");//BigDecimal.valueOf(400_000_000).multiply(BigDecimal.valueOf(1_000_000));
         int count = 0;
         for (int i = 0; i < list.size(); i++) {
             for (int j = i + 1; j < list.size(); j++) {
                 Hail h1 = list.get(i);
                 Hail h2 = list.get(j);
                 BigDecimal t2 = t2(h1.px, h2.px(), h1.py, h2.py, h1.vx, h2.vx, h1.vy, h2.vy);
-                // double t1 = (h2.py + (h2.vy * t2) - h1.vy) / h1.vy;
+                // t1 = (h2.px + (h2.vx * t2) - h1.px) / h1.vx
 
-                BigDecimal numerator = h2.py.add(h2.vy.multiply(t2, mc)).subtract(h1.vy, mc); // h2.py + (h2.vy * t2) - h1.vy
-                BigDecimal t1 = numerator.divide(h1.vy, mc); // (numerator) / h1.vy
+                BigDecimal numerator = h2.px.add(h2.vx.multiply(t2, mc)).subtract(h1.px, mc); // h2.py + (h2.vy * t2) - h1.vy
+                BigDecimal t1 = numerator.divide(h1.vx, mc); // (numerator) / h1.vy
                 BigDecimal x = h2.px.add(t2.multiply(h2.vx));
                 BigDecimal y = h2.py.add(t2.multiply(h2.vy));
                 int jo = 0;
