@@ -24,7 +24,7 @@ public class Day24 implements Puzzle {
                 BigDecimal t2 = t2(h1.px, h2.px(), h1.py, h2.py, h1.vx, h2.vx, h1.vy, h2.vy);
                 // t1 = (h2.px + (h2.vx * t2) - h1.px) / h1.vx
 
-                BigDecimal numerator = h2.px.add(h2.vx.multiply(t2, mc)).subtract(h1.px, mc); // h2.py + (h2.vy * t2) - h1.vy
+                BigDecimal numerator = h2.px.add(h2.vx.multiply(t2, mc)).subtract(h1.px, mc); // h2.px + (h2.vx * t2) - h1.px
                 BigDecimal t1 = numerator.divide(h1.vx, mc); // (numerator) / h1.vy
                 BigDecimal x = h2.px.add(t2.multiply(h2.vx));
                 BigDecimal y = h2.py.add(t2.multiply(h2.vy));
