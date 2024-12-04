@@ -34,7 +34,6 @@ public class Day02 implements Puzzle {
     boolean checkReport(List<Integer> report) {
         boolean increasing = true;
         boolean decreasing = true;
-
         for (int i = 1; i < report.size(); i++) {
             int diff = report.get(i) - report.get(i - 1);
             if (Math.abs(diff) < 1 || Math.abs(diff) > 3) return false;
